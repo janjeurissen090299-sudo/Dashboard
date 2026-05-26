@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Dashboard"/>
+<meta name="theme-color" content="#0a0a0c"/>
+<title>Jan's Dashboard</title>
+<link rel="manifest" href="manifest.json"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{background:#0a0a0c;color:#f0f0f0;font-family:'DM Mono','Fira Mono','Courier New',monospace;min-height:100vh;padding-bottom:80px;}
+  input,textarea,button{font-family:inherit;}
+  input:focus,textarea:focus{outline:2px solid rgba(232,255,71,0.4);}
+  .tab-bar{display:flex;border-bottom:1px solid rgba(255,255,255,0.06);padding:0 16px;overflow-x:auto;scrollbar-width:none;}
+  .tab-bar::-webkit-scrollbar{display:none;}
+  .tab-btn{background:none;border:none;color:rgba(255,255,255,0.4);padding:14px 14px 12px;cursor:pointer;font-size:12px;white-space:nowrap;border-bottom:2px solid transparent;transition:all 0.15s;}
+  .tab-btn.active{color:#e8ff47;border-bottom-color:#e8ff47;font-weight:600;}
+  .section{display:none;padding:20px 16px 0;flex-direction:column;gap:16px;}
+  .section.active{display:flex;}
+  .card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:16px;}
+  .card-title{font-size:11px;letter-spacing:0.1em;font-weight:600;margin-bottom:14px;text-transform:uppercase;}
+  .label{font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;display:block;}
+  .input{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;padding:8px 12px;width:100%;font-size:14px;font-family:inherit;}
+  .input-sm{width:90px;}
+  .btn-save{background:#e8ff47;color:#0a0a0c;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;width:100%;letter-spacing:0.05em;transition:all 0.2s;}
+  .btn-save:active{transform:scale(0.97);}
+  .rating{display:flex;gap:6px;}
+  .rating-dot{width:28px;height:28px;border-radius:6px;border:none;cursor:pointer;transition:all 0.15s;}
+  .day-sel{display:flex;gap:5px;}
+  .day-btn{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);border-radius:8px;padding:8px 4px;font-size:11px;font-family:inherit;cursor:pointer;transition:all 0.15s;position:relative;}
+  .day-btn.active-gym{background:#e8ff47;border-color:#e8ff47;color:#0a0a0c;font-weight:700;}
+  .day-btn.active-mma{background:#ff6b35;border-color:#ff6b35;color:#0a0a0c;font-weight:700;}
+  .day-btn.active-rest{background:#b47eff;border-color:#b47eff;color:#0a0a0c;font-weight:700;}
+  .flex-dot{position:absolute;top:3px;right:3px;width:5px;height:5px;border-radius:50%;background:#ff6b35;}
+  .timeline{display:flex;flex-direction:column;gap:0;}
+  .tl-row{display:flex;gap:10px;}
+  .tl-line{display:flex;flex-direction:column;align-items:center;width:32px;}
+  .tl-dot{width:10px;height:10px;border-radius:50%;margin-top:14px;flex-shrink:0;z-index:1;}
+  .tl-connector{width:1px;flex:1;background:rgba(255,255,255,0.07);min-height:20px;}
+  .tl-content{flex:1;padding:10px 0 16px;}
+  .tl-time{font-size:11px;color:rgba(255,255,255,0.35);min-width:38px;font-variant-numeric:tabular-nums;}
+  .stretch-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px;}
+  .technique-card{background:rgba(255,107,53,0.05);border:1px solid rgba(255,107,53,0.15);border-radius:10px;padding:14px;}
+  .badge{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700;letter-spacing:0.08em;}
+  .check-btn{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;text-align:left;width:100%;transition:all 0.15s;}
+  .check-box{width:20px;height:20px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#0a0a0c;transition:all 0.15s;}
+  .bar-chart{display:flex;align-items:flex-end;gap:6px;height:80px;}
+  .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .bar{width:100%;border-radius:4px;transition:height 0.3s;}
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .stat-card{background:rgba(255,255,255,0.04);border-radius:10px;padding:14px 12px;border:1px solid rgba(255,255,255,0.07);}
+  .mma-sec-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);border-radius:8px;padding:6px 10px;font-size:11px;font-family:inherit;cursor:pointer;transition:all 0.15s;}
+  .scroll-x{display:flex;gap:6px;flex-wrap:wrap;}
+  .hint{font-size:12px;color:rgba(255,255,255,0.35);line-height:1.6;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- Header -->
+  <div id="header" style="padding:28px 16px 16px;border-bottom:1px solid rgba(255,255,255,0.06);">
+    <div style="font-size:11px;letter-spacing:0.15em;color:rgba(255,255,255,0.35);margin-bottom:4px;" id="date-label"></div>
+    <div style="display:flex;align-items:baseline;gap:12px;">
+      <h1 style="font-size:24px;font-weight:700;letter-spacing:-0.02em;">Jan's Dashboard</h1>
+      <span class="badge" style="background:#e8ff47;color:#0a0a0c;">LIVE</span>
+    </div>
+    <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;" id="today-badge"></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="showTab('today')">Vandaag</button>
+    <button class="tab-btn" onclick="showTab('week')">Weekplan</button>
+    <button class="tab-btn" onclick="showTab('stretch')">Stretch</button>
+    <button class="tab-btn" onclick="showTab('mma')">MMA</button>
+    <button class="tab-btn" onclick="showTab('stats')">Stats</button>
+    <button class="tab-btn" onclick="showTab('goals')">Goals</button>
+  </div>
+
+  <!-- TODAY -->
+  <div id="tab-today" class="section active">
+    <div class="stat-grid" id="quick-stats"></div>
+
+    <div class="card">
+      <div class="card-title" style="color:#e8ff47;">🏋️ Training</div>
+      <label class="label">Type training</label>
+      <input class="input" id="f-training" placeholder="bijv. Push dag" style="margin-bottom:10px;"/>
+      <label class="label">Notities sessie</label>
+      <textarea class="input" id="f-notes" rows="2" placeholder="Hoe was de sessie? PR's? Iets opvallends?"></textarea>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#b47eff;">😴 Slaap</div>
+      <label class="label">Uren geslapen</label>
+      <input class="input input-sm" id="f-sleep" type="number" step="0.5" min="0" max="12" placeholder="8.0" style="margin-bottom:12px;"/>
+      <label class="label">Slaapkwaliteit</label>
+      <div class="rating" id="rating-sleep"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#47e8d4;">⚖️ Gewicht</div>
+      <label class="label">Gewicht (kg)</label>
+      <input class="input input-sm" id="f-weight" type="number" step="0.1" placeholder="78.5"/>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#ff47a3;">🧠 Energie & Mood</div>
+      <label class="label" style="margin-bottom:8px;">Energieniveau</label>
+      <div class="rating" id="rating-energy" style="margin-bottom:14px;"></div>
+      <label class="label" style="margin-bottom:8px;">Mood</label>
+      <div class="rating" id="rating-mood"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#47ffb4;">📚 Lezen</div>
+      <label class="label">Minuten gelezen</label>
+      <input class="input input-sm" id="f-reading" type="number" min="0" placeholder="30"/>
+    </div>
+
+    <button class="btn-save" id="save-btn" onclick="saveToday()">Dag opslaan</button>
+  </div>
+
+  <!-- WEEK -->
+  <div id="tab-week" class="section">
+    <div style="font-size:12px;color:rgba(255,255,255,0.35);">Jouw dagindeling — job 07:30–17:30, training 19:00–22:00</div>
+    <div class="day-sel" id="week-day-sel"></div>
+    <div id="week-day-header"></div>
+    <div class="timeline" id="week-timeline"></div>
+    <div id="week-flex-note"></div>
+  </div>
+
+  <!-- STRETCH -->
+  <div id="tab-stretch" class="section">
+    <div style="font-size:12px;color:rgba(255,255,255,0.35);">Stretch & mobility — kicks + flexibiliteit</div>
+    <div class="day-sel" id="stretch-day-sel"></div>
+    <div id="stretch-header"></div>
+    <div id="stretch-list"></div>
+    <div id="technique-list"></div>
+    <div class="hint">💡 Stretch nooit koud — altijd na training of na 5 min licht bewegen. Reken 6–8 weken voor merkbaar verschil in flexibiliteit.</div>
+  </div>
+
+  <!-- MMA -->
+  <div id="tab-mma" class="section">
+    <div style="font-size:12px;color:rgba(255,255,255,0.35);">MMA mindset & gewoonten — uit je saved reels</div>
+    <div class="scroll-x" id="mma-sec-btns"></div>
+    <div id="mma-header"></div>
+    <div id="mma-daily-list"></div>
+    <div id="mma-info-list"></div>
+  </div>
+
+  <!-- STATS -->
+  <div id="tab-stats" class="section">
+    <div style="font-size:12px;color:rgba(255,255,255,0.35);">Laatste 7 dagen</div>
+    <div class="card">
+      <div class="card-title" style="color:#b47eff;">😴 Slaap</div>
+      <div class="bar-chart" id="chart-sleep"></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#e8ff47;">⚡ Energie</div>
+      <div class="bar-chart" id="chart-energy"></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#47ffb4;">📚 Lezen</div>
+      <div class="bar-chart" id="chart-reading"></div>
+      <div style="margin-top:10px;font-size:11px;color:rgba(255,255,255,0.3);" id="reading-total"></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#47e8d4;">⚖️ Gewicht</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;" id="weight-list"></div>
+    </div>
+  </div>
+
+  <!-- GOALS -->
+  <div id="tab-goals" class="section">
+    <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:4px;">Jouw 6 kerndoelen</div>
+    <div id="goals-list"></div>
+    <div class="card" style="background:rgba(232,255,71,0.05);border-color:rgba(232,255,71,0.15);">
+      <div class="card-title" style="color:#e8ff47;">📌 Dagelijkse routine</div>
+      <div id="routine-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const DAYS = ["Ma","Di","Wo","Do","Vr","Za","Zo"];
+const FULL_DAYS = ["Maandag","Dinsdag","Woensdag","Donderdag","Vrijdag","Zaterdag","Zondag"];
+
+const WEEK_PLAN = [
+  { day:"Ma", focus:"Kracht – Push", type:"gym", icon:"🏋️", detail:"Borst, Schouders, Triceps", flexijob:false,
+    schedule:[{t:"06:15",l:"Opstaan + ochtendroutine",i:"☀️"},{t:"07:30",l:"Hoofdjob start",i:"💼"},{t:"17:30",l:"Job gedaan — thuis + eten",i:"🍽️"},{t:"18:30",l:"Stretch & mobiliteit (20 min)",i:"🧘"},{t:"19:00",l:"Gym — Push (borst, schouders, triceps)",i:"🏋️"},{t:"20:30",l:"Thuis, cooldown + lezen",i:"📚"},{t:"22:30",l:"Slaap",i:"😴"}]},
+  { day:"Di", focus:"MMA / BJJ", type:"mma", icon:"🥊", detail:"Techniek + sparring", flexijob:false,
+    schedule:[{t:"06:15",l:"Opstaan + ochtendroutine",i:"☀️"},{t:"07:30",l:"Hoofdjob start",i:"💼"},{t:"17:30",l:"Job gedaan — thuis + eten",i:"🍽️"},{t:"18:30",l:"Opwarmen + lichte stretch (15 min)",i:"🧘"},{t:"19:00",l:"MMA / BJJ training",i:"🥊"},{t:"21:00",l:"Thuis, herstelstretch + lezen",i:"📚"},{t:"22:30",l:"Slaap",i:"😴"}]},
+  { day:"Wo", focus:"Kracht – Pull", type:"gym", icon:"🏋️", detail:"Rug, Biceps, Rear delt", flexijob:false,
+    schedule:[{t:"06:15",l:"Opstaan + ochtendroutine",i:"☀️"},{t:"07:30",l:"Hoofdjob start",i:"💼"},{t:"17:30",l:"Job gedaan — thuis + eten",i:"🍽️"},{t:"18:30",l:"Stretch — heup & hamstrings (20 min)",i:"🧘"},{t:"19:00",l:"Gym — Pull (rug, biceps)",i:"🏋️"},{t:"20:30",l:"Thuis, cooldown + lezen",i:"📚"},{t:"22:30",l:"Slaap",i:"😴"}]},
+  { day:"Do", focus:"Actief herstel", type:"rest", icon:"🧘", detail:"Stretch + lezen (30 min)", flexijob:true,
+    schedule:[{t:"06:15",l:"Opstaan + ochtendroutine",i:"☀️"},{t:"07:30",l:"Hoofdjob start",i:"💼"},{t:"17:30",l:"Job gedaan",i:"💼"},{t:"18:00",l:"⚡ Flexijob (mogelijks)",i:"💰",flex:true},{t:"20:00",l:"Thuis — eten",i:"🍽️"},{t:"20:30",l:"Volledige stretch sessie (25 min)",i:"🧘"},{t:"21:00",l:"Lezen (30 min)",i:"📚"},{t:"22:30",l:"Slaap",i:"😴"}]},
+  { day:"Vr", focus:"Kracht – Legs", type:"gym", icon:"🏋️", detail:"Quads, Hamstrings, Glutes", flexijob:false,
+    schedule:[{t:"06:15",l:"Opstaan + ochtendroutine",i:"☀️"},{t:"07:30",l:"Hoofdjob start",i:"💼"},{t:"17:30",l:"Job gedaan — thuis + eten",i:"🍽️"},{t:"18:30",l:"Stretch — adductoren (15 min)",i:"🧘"},{t:"19:00",l:"Gym — Legs (quads, hamstrings)",i:"🏋️"},{t:"20:30",l:"Thuis, cooldown + lezen",i:"📚"},{t:"22:30",l:"Slaap",i:"😴"}]},
+  { day:"Za", focus:"MMA / Sparring", type:"mma", icon:"🥊", detail:"Volledige sessie", flexijob:true,
+    schedule:[{t:"07:30",l:"Opstaan (iets later)",i:"☀️"},{t:"08:00",l:"Ontbijt + voorbereiding",i:"🍽️"},{t:"09:00",l:"⚡ Flexijob (mogelijks)",i:"💰",flex:true},{t:"13:00",l:"Vrije tijd / herstel",i:"🛋️"},{t:"18:30",l:"Opwarmen + stretch (15 min)",i:"🧘"},{t:"19:00",l:"MMA / Sparring sessie",i:"🥊"},{t:"21:00",l:"Post-training cooldown + eten",i:"🍽️"},{t:"23:00",l:"Slaap",i:"😴"}]},
+  { day:"Zo", focus:"Rust & Lezen", type:"rest", icon:"📚", detail:"Geen training, 45 min lezen", flexijob:true,
+    schedule:[{t:"08:00",l:"Uitslapen",i:"😴"},{t:"09:00",l:"Rustig ontbijt",i:"🍽️"},{t:"10:00",l:"⚡ Flexijob (mogelijks)",i:"💰",flex:true},{t:"13:00",l:"Vrije tijd / sociaal",i:"🛋️"},{t:"17:00",l:"Basisstretch (10 min)",i:"🧘"},{t:"18:00",l:"Lezen (45 min)",i:"📚"},{t:"20:00",l:"Meal prep / voorbereiding week",i:"🍽️"},{t:"22:30",l:"Slaap",i:"😴"}]},
+];
+
+const STRETCH_SCHEDULE = [
+  { label:"Mobiliteit + Traptechniek", duration:"25–30 min", type:"mobility",
+    stretches:[{name:"Heupflexor stretch",dur:"60 sec/kant",cue:"Knie op de grond, andere voet voor. Bekken recht naar voor duwen tot spanning in de lies."},{name:"Pigeon pose",dur:"90 sec/kant",cue:"Vanuit viervoeter één been schuin voor je leggen, ander been gestrekt achter. Romp naar voor zakken."},{name:"Wide leg forward fold",dur:"90 sec",cue:"Benen wijd gespreid zittend, romp langzaam naar voor laten zakken. Rug zo recht mogelijk houden."}],
+    technique:[{name:"Slow motion roundhouse",sets:"3×10/kant",cue:"Trap uitvoeren in slowmotion. Focus op heuprotatie en knielifte — niet op snelheid."},{name:"Trap tegen de muur",sets:"3×10/kant",cue:"Sta naast een muur als steun. Oefen de knielifte en rotatie geïsoleerd voordat je doortrapt."}]},
+  { label:"Lichte herstelstretch", duration:"10–15 min", type:"recovery",
+    stretches:[{name:"Butterfly stretch",dur:"90 sec",cue:"Zittend, voetzolen tegen elkaar, knieën zo ver mogelijk naar de grond. Licht naar voor leunen."},{name:"Seated forward fold",dur:"90 sec",cue:"Benen gestrekt voor je, handen naar voeten reiken, rug recht houden."},{name:"Staande quadstretch",dur:"30 sec/kant",cue:"Sta op één been, trek de enkel naar je bil. Bekken lichtjes naar voor kantelen."}],
+    technique:[]},
+  { label:"Diepe heup & hamstrings", duration:"20–25 min", type:"mobility",
+    stretches:[{name:"Lizard pose",dur:"60 sec/kant",cue:"Grote stap naar voor, voorste knie boven enkel, achterste been gestrekt. Heupen laag houden."},{name:"90/90 heupstretch",dur:"60 sec/kant",cue:"Zit met beide benen in een 90° hoek. Wissel zijden zonder hulp van de handen."},{name:"Hamstring stretch met band",dur:"60 sec/kant",cue:"Liggend op rug, been omhoog met band of handdoek. Been gestrekt houden, voet flexen."}],
+    technique:[{name:"Staande knielifte",sets:"3×15/kant",cue:"Focus op explosieve knielifte tot heuphoogte. Basis voor alle trapsoorten."}]},
+  { label:"Volledige stretch sessie", duration:"20–25 min", type:"deep",
+    stretches:[{name:"Pigeon pose",dur:"90 sec/kant",cue:"Diepe heupopener. Romp ontspannen zakken, geen kracht zetten."},{name:"Wide leg forward fold",dur:"90 sec",cue:"Maximale adductorenstretch. Essentieel voor hoge trappen."},{name:"Lizard pose",dur:"60 sec/kant",cue:"Ellebogen naar de vloer brengen voor extra diepte als dat lukt."},{name:"Butterfly stretch",dur:"90 sec",cue:"Voetzolen bij elkaar, knieën naar de grond laten zakken onder eigen gewicht."},{name:"Sumo squat hold",dur:"60 sec",cue:"Voeten breed, tenen uitdraaien, diep door de knieën. Ellebogen duwen knieën open."}],
+    technique:[{name:"Slow motion sidekick",sets:"3×8/kant",cue:"Til het been langzaam op via knielifte, strek zijwaarts, trek terug. Focus op controle."},{name:"Trap + houdstand",sets:"3×10/kant",cue:"Na de trap het been 2 seconden hoog houden. Traint trapkracht en balans tegelijk."}]},
+  { label:"Adductoren + trapkracht", duration:"15–20 min", type:"mobility",
+    stretches:[{name:"Wide leg forward fold",dur:"90 sec",cue:"Prioriteit vandaag — adductoren zijn cruciaal voor hoge trappen."},{name:"Sumo squat hold",dur:"60 sec",cue:"Voeten breed, tenen uitdraaien. Ellebogen duwen knieën open voor diepere stretch."},{name:"Heupflexor stretch",dur:"60 sec/kant",cue:"Bekken naar voor duwen, romp rechtop. Voel de stretch in de voorste lies."}],
+    technique:[{name:"Bandkicks",sets:"3×15/kant",cue:"Met een weerstandsband om de enkels trappen uitvoeren. Bouwt specifieke trapkracht."},{name:"Slow motion roundhouse",sets:"3×10/kant",cue:"Na de krachttraining van vandaag — focus op techniek, niet op kracht."}]},
+  { label:"Post-training cooldown", duration:"10 min", type:"recovery",
+    stretches:[{name:"Butterfly stretch",dur:"60 sec",cue:"Rustpositie na sparring. Laat de heupen zakken zonder te forceren."},{name:"Seated forward fold",dur:"60 sec",cue:"Ontspan de hamstrings na het trappen en bewegen."},{name:"Liggend gekruiste heupstretch",dur:"60 sec/kant",cue:"Op rug liggen, been over het andere leggen, trek zacht naar je toe. Piriformis stretch."}],
+    technique:[]},
+  { label:"Dagelijkse basisroutine", duration:"5–10 min", type:"daily",
+    stretches:[{name:"Heupflexor stretch",dur:"60 sec/kant",cue:"Elke dag. Heupen gaan dicht van zitten — dit houdt ze open."},{name:"Butterfly stretch",dur:"60 sec",cue:"Elke dag. Voetzolen bij elkaar, ontspannen zakken."},{name:"Staande quadstretch",dur:"30 sec/kant",cue:"Elke dag. Snel en effectief, ook staand te doen."}],
+    technique:[]},
+];
+
+const MMA_MINDSET = {
+  consistency:{label:"Wat houdt je consistent",icon:"🙏",color:"#e8ff47",
+    daily:["Create clear routines","Discipline over motivation","Record your training sessions","Track your progress","Training with intention","Consistency > intensity","Trusting the process"],
+    info:["Set realistic goals","Get a structured training program","Enough recovery","Listening to your body","Quality over quantity","Reducing excuses","Good friends and environment"]},
+  performance:{label:"Performen in MMA",icon:"🎯",color:"#ff6b35",
+    daily:["Mental preparation","Focus on your game plan","Control your emotions","Stay focused round by round","Trust your preparation"],
+    info:["Trust your training","Stay disciplined in camp","Fuel your body properly","Improve your conditioning","Develop a fight day routine","Listen to your corner","Stay sharp during fight week","Train under pressure"]},
+  habits:{label:"Daily habits",icon:"🧘",color:"#47ffb4",
+    daily:["8+ uur slaap","Ochtend zonlicht","10–30 min wandelen","Plan je dag de avond ervoor","Morning hydration","Cool down na training","Breathing exercises","Lezen","Avoid junk food"],
+    info:["Eat quality food","Limit distractions","Track your training progress","Spend time outside","Take care of your body","Start journaling"]},
+  iq:{label:"MMA IQ verhogen",icon:"🧠",color:"#b47eff",
+    daily:["Watch high level fighters","Study different fighting styles","Analyze UFC champions","Review your sparring footage","Think one step ahead"],
+    info:["Drill specific situations","Learn from your mistakes","Improve your timing","Understand distance control","Work on your fight reactions","Spar different opponents","Develop your game plan"]},
+  cage:{label:"Comfortabeler in the cage",icon:"🥊",color:"#ff47a3",
+    daily:["Shadowbox everyday","Spar more technically","Drill your combos","Repeat the basics daily","Stay relaxed under pressure","Train even when tired"],
+    info:["Improve your footwork","Train both stances","Work on your defense","Cage wrestling rounds","Reaction & reflex drills","Improve your cardio","Watch fight footage","Repetition over time"]},
+};
+
+const GOALS = [
+  {label:"Kracht / Spiermassa",icon:"💪",target:"3x gym/week",color:"#e8ff47"},
+  {label:"Vechtsporten / MMA",icon:"🥊",target:"2x MMA/week",color:"#ff6b35"},
+  {label:"Vetpercentage verlagen",icon:"📉",target:"< 12% bf",color:"#47e8d4"},
+  {label:"Slaap optimaliseren",icon:"😴",target:"8u / nacht",color:"#b47eff"},
+  {label:"Mentale gezondheid",icon:"🧠",target:"Daily check-in",color:"#ff47a3"},
+  {label:"Voldoende lezen",icon:"📚",target:"30 min / dag",color:"#47ffb4"},
+];
+
+const ROUTINE = ["3x/week kracht training","2x/week MMA / BJJ","8u slaap per nacht","30 min lezen per dag","Dagelijkse check-in invullen","1x/week weging in de ochtend"];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+const STORAGE_KEY = "jan_dashboard_v1";
+const MMA_CHECKS_KEY = "jan_mma_checks";
+
+function getTodayKey(){ return new Date().toISOString().slice(0,10); }
+function getDayIdx(){ return (new Date().getDay()+6)%7; }
+
+function loadAll(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}"); }catch{return{};} }
+function saveAll(d){ try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(d)); }catch{} }
+function loadChecks(){ try{ return JSON.parse(localStorage.getItem(MMA_CHECKS_KEY)||"{}"); }catch{return{};} }
+function saveChecks(d){ try{ localStorage.setItem(MMA_CHECKS_KEY,JSON.stringify(d)); }catch{} }
+
+let allData = loadAll();
+let todayLog = { training:"", notes:"", sleep_hours:"", sleep_quality:3, weight:"", energy:3, mood:3, reading_minutes:"" };
+const todayKey = getTodayKey();
+const dayIdx = getDayIndex();
+if(allData[todayKey]) Object.assign(todayLog, allData[todayKey]);
+
+function getDayIndex(){ return (new Date().getDay()+6)%7; }
+
+// ── RATINGS ───────────────────────────────────────────────────────────────────
+function buildRating(containerId, field, color){
+  const el = document.getElementById(containerId);
+  el.innerHTML="";
+  for(let i=1;i<=5;i++){
+    const b=document.createElement("button");
+    b.className="rating-dot";
+    b.style.background = i<=todayLog[field] ? color : "rgba(255,255,255,0.08)";
+    b.style.border = `1.5px solid ${i<=todayLog[field] ? color : "rgba(255,255,255,0.2)"}`;
+    b.onclick=(()=>{
+      const val=i;
+      return ()=>{
+        todayLog[field]=val;
+        buildRating(containerId,field,color);
+      };
+    })();
+    el.appendChild(b);
+  }
+}
+
+// ── HEADER ────────────────────────────────────────────────────────────────────
+function renderHeader(){
+  const now = new Date();
+  document.getElementById("date-label").textContent = now.toLocaleDateString("nl-BE",{weekday:"long",day:"numeric",month:"long"}).toUpperCase();
+  const plan = WEEK_PLAN[dayIdx];
+  const typeColor = plan.type==="gym"?"#e8ff47":plan.type==="mma"?"#ff6b35":"#b47eff";
+  const border = plan.type==="gym"?"rgba(232,255,71,0.25)":plan.type==="mma"?"rgba(255,107,53,0.25)":"rgba(180,126,255,0.25)";
+  const bg = plan.type==="gym"?"rgba(232,255,71,0.1)":plan.type==="mma"?"rgba(255,107,53,0.1)":"rgba(180,126,255,0.1)";
+  document.getElementById("today-badge").innerHTML=`
+    <span style="background:${bg};color:${typeColor};border:1px solid ${border};font-size:12px;padding:3px 10px;border-radius:6px;">${plan.icon} ${plan.focus}</span>
+    <span style="font-size:12px;color:rgba(255,255,255,0.35);">${plan.detail}</span>`;
+}
+
+// ── QUICK STATS ───────────────────────────────────────────────────────────────
+function renderQuickStats(){
+  const last7 = getLast7();
+  const sleeps = last7.filter(d=>d.data?.sleep_hours).map(d=>parseFloat(d.data.sleep_hours));
+  const energies = last7.filter(d=>d.data?.energy).map(d=>d.data.energy);
+  const reading = last7.filter(d=>d.data?.reading_minutes).reduce((s,d)=>s+parseInt(d.data.reading_minutes||0),0);
+  const avgS = sleeps.length?(sleeps.reduce((a,b)=>a+b,0)/sleeps.length).toFixed(1)+"u":"–";
+  const avgE = energies.length?(energies.reduce((a,b)=>a+b,0)/energies.length).toFixed(1)+"/5":"–";
+  const stats = [{label:"Gem. slaap",value:avgS,color:"#b47eff"},{label:"Gem. energie",value:avgE,color:"#e8ff47"},{label:"Lezen 7d",value:reading?reading+"m":"–",color:"#47ffb4"}];
+  document.getElementById("quick-stats").innerHTML = stats.map(s=>`
+    <div class="stat-card">
+      <div style="font-size:18px;font-weight:700;color:${s.color};">${s.value}</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:0.06em;margin-top:2px;">${s.label.toUpperCase()}</div>
+    </div>`).join("");
+}
+
+// ── TODAY FORM ────────────────────────────────────────────────────────────────
+function initTodayForm(){
+  document.getElementById("f-training").value = todayLog.training||"";
+  document.getElementById("f-notes").value = todayLog.notes||"";
+  document.getElementById("f-sleep").value = todayLog.sleep_hours||"";
+  document.getElementById("f-weight").value = todayLog.weight||"";
+  document.getElementById("f-reading").value = todayLog.reading_minutes||"";
+  buildRating("rating-sleep","sleep_quality","#b47eff");
+  buildRating("rating-energy","energy","#e8ff47");
+  buildRating("rating-mood","mood","#ff47a3");
+}
+
+function saveToday(){
+  todayLog.training = document.getElementById("f-training").value;
+  todayLog.notes = document.getElementById("f-notes").value;
+  todayLog.sleep_hours = document.getElementById("f-sleep").value;
+  todayLog.weight = document.getElementById("f-weight").value;
+  todayLog.reading_minutes = document.getElementById("f-reading").value;
+  allData[todayKey] = {...todayLog};
+  saveAll(allData);
+  const btn = document.getElementById("save-btn");
+  btn.textContent="✓ Opgeslagen"; btn.style.background="#47ffb4";
+  setTimeout(()=>{ btn.textContent="Dag opslaan"; btn.style.background="#e8ff47"; },2000);
+  renderQuickStats(); renderStats();
+}
+
+// ── WEEK TAB ──────────────────────────────────────────────────────────────────
+let weekSelectedDay = dayIdx;
+
+function renderWeekDaySel(){
+  const el = document.getElementById("week-day-sel");
+  el.innerHTML = WEEK_PLAN.map((d,i)=>{
+    const c = d.type==="gym"?"gym":d.type==="mma"?"mma":"rest";
+    const isActive = i===weekSelectedDay;
+    return `<button class="day-btn${isActive?" active-"+c:""}" onclick="selectWeekDay(${i})">
+      ${d.day}${d.flexijob?'<span class="flex-dot"></span>':''}
+    </button>`;
+  }).join("");
+}
+
+function selectWeekDay(i){ weekSelectedDay=i; renderWeekDaySel(); renderWeekDetail(); }
+
+function renderWeekDetail(){
+  const d = WEEK_PLAN[weekSelectedDay];
+  const typeColor = d.type==="gym"?"#e8ff47":d.type==="mma"?"#ff6b35":"#b47eff";
+  const borderCol = d.type==="gym"?"rgba(232,255,71,0.25)":d.type==="mma"?"rgba(255,107,53,0.25)":"rgba(180,126,255,0.25)";
+
+  document.getElementById("week-day-header").innerHTML=`
+    <div style="background:${typeColor}0d;border:1px solid ${borderCol};border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+      <div>
+        <div style="font-size:15px;font-weight:700;">${FULL_DAYS[weekSelectedDay]}</div>
+        <div style="font-size:13px;color:${typeColor};margin-top:2px;">${d.icon} ${d.focus} — ${d.detail}</div>
+      </div>
+      ${d.flexijob?`<div style="font-size:11px;background:rgba(255,107,53,0.15);color:#ff6b35;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,107,53,0.3);">💰 Flexijob dag</div>`:""}
+    </div>`;
+
+  document.getElementById("week-timeline").innerHTML = d.schedule.map((item,i)=>`
+    <div class="tl-row">
+      <div class="tl-line">
+        <div class="tl-dot" style="background:${item.flex?"#ff6b35":typeColor};border:2px solid ${item.flex?"rgba(255,107,53,0.3)":typeColor+"30"};"></div>
+        ${i<d.schedule.length-1?'<div class="tl-connector"></div>':""}
+      </div>
+      <div class="tl-content">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="tl-time">${item.t}</span>
+          <span style="font-size:13px;font-weight:${item.flex?600:500};color:${item.flex?"#ff6b35":"#f0f0f0"};">${item.i} ${item.l}</span>
+        </div>
+      </div>
+    </div>`).join("");
+
+  document.getElementById("week-flex-note").innerHTML = d.flexijob?`
+    <div style="background:rgba(255,107,53,0.06);border:1px solid rgba(255,107,53,0.2);border-radius:10px;padding:12px 14px;font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
+      ⚡ Flexijob ingepland op deze dag. Als die uitvalt: extra vrije tijd of vervroegd slapen. Verschuif training niet naar later dan 22:00.
+    </div>`:"";
+}
+
+// ── STRETCH TAB ───────────────────────────────────────────────────────────────
+let stretchSelectedDay = dayIdx;
+
+function renderStretchDaySel(){
+  const el = document.getElementById("stretch-day-sel");
+  el.innerHTML = DAYS.map((d,i)=>{
+    const plan = STRETCH_SCHEDULE[i];
+    const typeColor = plan.type==="deep"?"#ff47a3":plan.type==="mobility"?"#ff6b35":plan.type==="recovery"?"#b47eff":"#47ffb4";
+    const isActive = i===stretchSelectedDay;
+    return `<button class="day-btn${isActive?" active-"+plan.type:""}" 
+      style="${isActive?"background:"+typeColor+";border-color:"+typeColor+";color:#0a0a0c;font-weight:700;":""}"
+      onclick="selectStretchDay(${i})">${d}</button>`;
+  }).join("");
+}
+
+function selectStretchDay(i){ stretchSelectedDay=i; renderStretchDaySel(); renderStretchDetail(); }
+
+function stretchTypeColor(t){ return t==="deep"?"#ff47a3":t==="mobility"?"#ff6b35":t==="recovery"?"#b47eff":"#47ffb4"; }
+function stretchTypeLabel(t){ return t==="deep"?"DIEP":t==="mobility"?"MOBILITEIT":t==="recovery"?"HERSTEL":"DAGELIJKS"; }
+
+function renderStretchDetail(){
+  const plan = STRETCH_SCHEDULE[stretchSelectedDay];
+  const col = stretchTypeColor(plan.type);
+  const lbl = stretchTypeLabel(plan.type);
+
+  document.getElementById("stretch-header").innerHTML=`
+    <div style="background:${col}10;border:1px solid ${col}30;border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:14px;font-weight:700;">${FULL_DAYS[stretchSelectedDay]}</div>
+        <div style="font-size:13px;color:${col};margin-top:2px;">${plan.label}</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="badge" style="background:${col}20;color:${col};">${lbl}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px;">⏱ ${plan.duration}</div>
+      </div>
+    </div>`;
+
+  document.getElementById("stretch-list").innerHTML=`
+    <div style="font-size:11px;letter-spacing:0.1em;color:rgba(255,255,255,0.35);margin-bottom:10px;">STRETCHES</div>
+    ${plan.stretches.map(s=>`
+      <div class="stretch-card" style="margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:6px;">
+          <span style="font-size:14px;font-weight:600;">${s.name}</span>
+          <span style="font-size:11px;color:${col};background:${col}15;padding:2px 8px;border-radius:4px;white-space:nowrap;">${s.dur}</span>
+        </div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5;">${s.cue}</div>
+      </div>`).join("")}`;
+
+  document.getElementById("technique-list").innerHTML = plan.technique.length?`
+    <div style="font-size:11px;letter-spacing:0.1em;color:rgba(255,255,255,0.35);margin-bottom:10px;">TRAPTECHNIEK</div>
+    ${plan.technique.map(t=>`
+      <div class="technique-card" style="margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:6px;">
+          <span style="font-size:14px;font-weight:600;">🥊 ${t.name}</span>
+          <span style="font-size:11px;color:#ff6b35;background:rgba(255,107,53,0.15);padding:2px 8px;border-radius:4px;white-space:nowrap;">${t.sets}</span>
+        </div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5;">${t.cue}</div>
+      </div>`).join("")}`:"";
+}
+
+// ── MMA TAB ───────────────────────────────────────────────────────────────────
+let mmaSection = "consistency";
+
+function renderMmaSectionBtns(){
+  document.getElementById("mma-sec-btns").innerHTML = Object.entries(MMA_MINDSET).map(([key,s])=>`
+    <button class="mma-sec-btn" onclick="selectMmaSection('${key}')"
+      style="${key===mmaSection?"background:"+s.color+";border-color:"+s.color+";color:#0a0a0c;font-weight:700;":""}"
+    >${s.icon} ${s.label}</button>`).join("");
+}
+
+function selectMmaSection(key){ mmaSection=key; renderMmaSectionBtns(); renderMmaDetail(); }
+
+function renderMmaDetail(){
+  const s = MMA_MINDSET[mmaSection];
+  const checks = loadChecks();
+  const todayK = getTodayKey();
+  const done = s.daily.filter((_,i)=>checks[`${todayK}_${mmaSection}_${i}`]).length;
+
+  document.getElementById("mma-header").innerHTML=`
+    <div style="background:${s.color}0d;border:1px solid ${s.color}30;border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:15px;font-weight:700;">${s.icon} ${s.label}</div>
+      <div style="font-size:12px;color:${s.color};">${done}/${s.daily.length} vandaag</div>
+    </div>`;
+
+  document.getElementById("mma-daily-list").innerHTML=`
+    <div style="font-size:11px;letter-spacing:0.1em;color:rgba(255,255,255,0.35);margin-bottom:10px;">✅ DAGELIJKS UITVOEREN</div>
+    ${s.daily.map((item,i)=>{
+      const key=`${todayK}_${mmaSection}_${i}`;
+      const isdone=!!checks[key];
+      return `<button class="check-btn" onclick="toggleMmaCheck('${key}')"
+        style="margin-bottom:6px;background:${isdone?s.color+"12":"rgba(255,255,255,0.03)"};border-color:${isdone?s.color+"40":"rgba(255,255,255,0.07)"};">
+        <div class="check-box" style="background:${isdone?s.color:"rgba(255,255,255,0.08)"};border:1.5px solid ${isdone?s.color:"rgba(255,255,255,0.2)"};">${isdone?"✓":""}</div>
+        <span style="font-size:13px;color:${isdone?"#fff":"rgba(255,255,255,0.6)"};font-weight:${isdone?600:400};">${item}</span>
+      </button>`;
+    }).join("")}`;
+
+  document.getElementById("mma-info-list").innerHTML=`
+    <div style="font-size:11px;letter-spacing:0.1em;color:rgba(255,255,255,0.35);margin-bottom:10px;">📌 PRINCIPES</div>
+    <div class="card" style="padding:12px 14px;">
+      ${s.info.map((item,i)=>`
+        <div style="font-size:13px;color:rgba(255,255,255,0.55);padding:5px 0;display:flex;gap:10px;${i<s.info.length-1?"border-bottom:1px solid rgba(255,255,255,0.04);":""}">
+          <span style="color:${s.color};flex-shrink:0;">—</span>${item}
+        </div>`).join("")}
+    </div>`;
+}
+
+function toggleMmaCheck(key){
+  const checks = loadChecks();
+  checks[key] = !checks[key];
+  saveChecks(checks);
+  renderMmaDetail();
+}
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function getLast7(){
+  return Array.from({length:7}).map((_,i)=>{
+    const d=new Date(); d.setDate(d.getDate()-(6-i));
+    const key=d.toISOString().slice(0,10);
+    return {key, day:DAYS[(d.getDay()+6)%7], data:allData[key]||null};
+  });
+}
+
+function makeBarChart(containerId, getData, colorFn, labelFn){
+  const last7 = getLast7();
+  const el = document.getElementById(containerId);
+  el.innerHTML = last7.map(d=>{
+    const val = getData(d.data);
+    const pct = val;
+    const isToday = d.key===todayKey;
+    return `<div class="bar-col">
+      <div style="font-size:10px;color:rgba(255,255,255,0.4);height:14px;display:flex;align-items:flex-end;">${labelFn(d.data)}</div>
+      <div class="bar" style="height:${Math.max(pct*60,4)}px;background:${colorFn(d.data,isToday)};"></div>
+      <div style="font-size:10px;color:${isToday?colorFn(d.data,true):"rgba(255,255,255,0.35)"};">${d.day}</div>
+    </div>`;
+  }).join("");
+}
+
+function renderStats(){
+  const last7 = getLast7();
+  makeBarChart("chart-sleep",
+    d=>d?.sleep_hours?Math.min(parseFloat(d.sleep_hours)/10,1):0,
+    (d,today)=>today?"#b47eff":d?.sleep_hours?(parseFloat(d.sleep_hours)>=7.5?"rgba(180,126,255,0.6)":"rgba(255,107,53,0.6)"):"rgba(255,255,255,0.08)",
+    d=>d?.sleep_hours?parseFloat(d.sleep_hours)+"u":"");
+  makeBarChart("chart-energy",
+    d=>d?.energy?(d.energy/5):0,
+    (d,today)=>today?"#e8ff47":d?.energy?"rgba(232,255,71,0.5)":"rgba(255,255,255,0.08)",
+    d=>d?.energy?d.energy+"/5":"");
+  makeBarChart("chart-reading",
+    d=>d?.reading_minutes?Math.min(parseInt(d.reading_minutes)/60,1):0,
+    (d,today)=>today?"#47ffb4":d?.reading_minutes?(parseInt(d.reading_minutes)>=30?"rgba(71,255,180,0.6)":"rgba(255,107,53,0.5)"):"rgba(255,255,255,0.08)",
+    d=>d?.reading_minutes?parseInt(d.reading_minutes)+"m":"");
+  const totalReading = last7.filter(d=>d.data?.reading_minutes).reduce((s,d)=>s+parseInt(d.data.reading_minutes||0),0);
+  document.getElementById("reading-total").textContent=`Totaal: ${totalReading} min • Doel: 210 min/week`;
+  document.getElementById("weight-list").innerHTML = last7.map(d=>`
+    <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:8px 12px;min-width:60px;text-align:center;">
+      <div style="font-size:13px;font-weight:600;color:${d.data?.weight?"#47e8d4":"rgba(255,255,255,0.2)"};">${d.data?.weight?d.data.weight+"kg":"—"}</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px;">${d.day}</div>
+    </div>`).join("");
+}
+
+// ── GOALS ─────────────────────────────────────────────────────────────────────
+function renderGoals(){
+  document.getElementById("goals-list").innerHTML = GOALS.map(g=>`
+    <div class="card" style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+      <div style="width:44px;height:44px;border-radius:10px;background:${g.color}18;border:1px solid ${g.color}40;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">${g.icon}</div>
+      <div>
+        <div style="font-size:14px;font-weight:600;">${g.label}</div>
+        <div style="font-size:12px;color:${g.color};margin-top:3px;">${g.target}</div>
+      </div>
+    </div>`).join("");
+  document.getElementById("routine-list").innerHTML = ROUTINE.map(item=>`
+    <div style="font-size:13px;color:rgba(255,255,255,0.7);padding:5px 0;display:flex;gap:8px;">
+      <span style="color:#e8ff47;">—</span>${item}
+    </div>`).join("");
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function showTab(id){
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+  document.getElementById("tab-"+id).classList.add("active");
+  event.currentTarget.classList.add("active");
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderHeader();
+renderQuickStats();
+initTodayForm();
+renderWeekDaySel();
+renderWeekDetail();
+renderStretchDaySel();
+renderStretchDetail();
+renderMmaSectionBtns();
+renderMmaDetail();
+renderStats();
+renderGoals();
+</script>
+</body>
+</html>
