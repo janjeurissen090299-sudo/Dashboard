@@ -1,605 +1,793 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="apple-mobile-web-app-title" content="Dashboard"/>
-<meta name="theme-color" content="#0a0a0c"/>
-<title>Jan's Dashboard</title>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Jan"/>
+<meta name="theme-color" content="#f7f8fa"/>
+<title>Jan</title>
 <link rel="manifest" href="manifest.json"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-  body{background:#0a0a0c;color:#f0f0f0;font-family:'DM Mono','Fira Mono','Courier New',monospace;min-height:100vh;padding-bottom:80px;}
-  input,textarea,button{font-family:inherit;}
-  input:focus,textarea:focus{outline:2px solid rgba(232,255,71,0.4);}
-  .tab-bar{display:flex;border-bottom:1px solid rgba(255,255,255,0.06);padding:0 16px;overflow-x:auto;scrollbar-width:none;}
-  .tab-bar::-webkit-scrollbar{display:none;}
-  .tab-btn{background:none;border:none;color:rgba(255,255,255,0.4);padding:14px 14px 12px;cursor:pointer;font-size:12px;white-space:nowrap;border-bottom:2px solid transparent;transition:all 0.15s;}
-  .tab-btn.active{color:#e8ff47;border-bottom-color:#e8ff47;font-weight:600;}
-  .section{display:none;padding:20px 16px 0;flex-direction:column;gap:16px;}
-  .section.active{display:flex;}
-  .card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:16px;}
-  .card-title{font-size:11px;letter-spacing:0.1em;font-weight:600;margin-bottom:14px;text-transform:uppercase;}
-  .label{font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;display:block;}
-  .input{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;padding:8px 12px;width:100%;font-size:14px;font-family:inherit;}
-  .input-sm{width:90px;}
-  .btn-save{background:#e8ff47;color:#0a0a0c;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;width:100%;letter-spacing:0.05em;transition:all 0.2s;}
-  .btn-save:active{transform:scale(0.97);}
-  .rating{display:flex;gap:6px;}
-  .rating-dot{width:28px;height:28px;border-radius:6px;border:none;cursor:pointer;transition:all 0.15s;}
-  .day-sel{display:flex;gap:5px;}
-  .day-btn{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);border-radius:8px;padding:8px 4px;font-size:11px;font-family:inherit;cursor:pointer;transition:all 0.15s;position:relative;}
-  .day-btn.active-gym{background:#e8ff47;border-color:#e8ff47;color:#0a0a0c;font-weight:700;}
-  .day-btn.active-mma{background:#ff6b35;border-color:#ff6b35;color:#0a0a0c;font-weight:700;}
-  .day-btn.active-rest{background:#b47eff;border-color:#b47eff;color:#0a0a0c;font-weight:700;}
-  .flex-dot{position:absolute;top:3px;right:3px;width:5px;height:5px;border-radius:50%;background:#ff6b35;}
-  .timeline{display:flex;flex-direction:column;gap:0;}
-  .tl-row{display:flex;gap:10px;}
-  .tl-line{display:flex;flex-direction:column;align-items:center;width:32px;}
-  .tl-dot{width:10px;height:10px;border-radius:50%;margin-top:14px;flex-shrink:0;z-index:1;}
-  .tl-connector{width:1px;flex:1;background:rgba(255,255,255,0.07);min-height:20px;}
-  .tl-content{flex:1;padding:10px 0 16px;}
-  .tl-time{font-size:11px;color:rgba(255,255,255,0.35);min-width:38px;font-variant-numeric:tabular-nums;}
-  .stretch-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px;}
-  .technique-card{background:rgba(255,107,53,0.05);border:1px solid rgba(255,107,53,0.15);border-radius:10px;padding:14px;}
-  .badge{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700;letter-spacing:0.08em;}
-  .check-btn{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;text-align:left;width:100%;transition:all 0.15s;}
-  .check-box{width:20px;height:20px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#0a0a0c;transition:all 0.15s;}
-  .bar-chart{display:flex;align-items:flex-end;gap:6px;height:80px;}
-  .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
-  .bar{width:100%;border-radius:4px;transition:height 0.3s;}
-  .stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
-  .stat-card{background:rgba(255,255,255,0.04);border-radius:10px;padding:14px 12px;border:1px solid rgba(255,255,255,0.07);}
-  .mma-sec-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);border-radius:8px;padding:6px 10px;font-size:11px;font-family:inherit;cursor:pointer;transition:all 0.15s;}
-  .scroll-x{display:flex;gap:6px;flex-wrap:wrap;}
-  .hint{font-size:12px;color:rgba(255,255,255,0.35);line-height:1.6;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;}
+:root{
+  --g:#16a34a;--g2:#15803d;--gl:#dcfce7;--gm:#bbf7d0;
+  --am:#d97706;--al:#fef3c7;
+  --bl:#2563eb;--bll:#dbeafe;
+  --pu:#7c3aed;--pul:#ede9fe;
+  --or:#ea580c;--orl:#ffedd5;--orm:#fed7aa;
+  --re:#dc2626;--rel:#fee2e2;
+  --t:#0f172a;--t2:#475569;--t3:#94a3b8;
+  --bg:#f7f8fa;--card:#fff;--bdr:#e2e8f0;
+  --sh:0 1px 6px rgba(0,0,0,0.06),0 0 1px rgba(0,0,0,0.04);
+  --shm:0 4px 20px rgba(0,0,0,0.10);
+  --r:20px;--rs:12px;--rx:8px;
+  --fn:'Plus Jakarta Sans',sans-serif;
+  --nb:68px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:var(--fn);background:var(--bg);color:var(--t);display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative;}
+button,input,textarea{font-family:var(--fn);}
+
+/* SCROLL */
+#content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;}
+#content::-webkit-scrollbar{display:none;}
+
+/* BOTTOM NAV */
+#bnav{
+  height:var(--nb);
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:430px;
+  background:rgba(255,255,255,0.92);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-top:1px solid var(--bdr);
+  display:flex;align-items:center;
+  padding:0 8px max(6px,env(safe-area-inset-bottom)) 8px;
+  z-index:100;
+  box-shadow:0 -2px 20px rgba(0,0,0,0.06);
+}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:none;cursor:pointer;padding:8px 4px;transition:all 0.2s;border-radius:12px;}
+.ni svg{transition:all 0.2s;}
+.ni-lbl{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:0.02em;transition:color 0.2s;}
+.ni.active .ni-lbl{color:var(--g);}
+.ni.active svg{transform:scale(1.12);}
+
+/* PAGES */
+.page{display:none;min-height:calc(100vh - var(--nb));}
+.page.active{display:flex;flex-direction:column;animation:fu 0.22s ease;}
+@keyframes fu{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* HOME: fills full height, cards grow */
+#page-home.active{height:calc(100vh - var(--nb));overflow:hidden;}
+#home-inner{flex:1;display:flex;flex-direction:column;padding:0 16px;gap:12px;overflow:hidden;}
+
+/* OTHER PAGES scroll normally */
+.page-scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:0 16px 20px;}
+.page-scroll::-webkit-scrollbar{display:none;}
+
+/* HEADER */
+.hdr{padding:52px 16px 14px;background:white;border-bottom:1px solid var(--bdr);flex-shrink:0;}
+
+/* CARD */
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);}
+.cp{padding:18px;}
+
+/* ROW */
+.row{display:flex;align-items:center;}
+.between{justify-content:space-between;}
+
+/* AVATAR */
+.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--g),var(--g2));display:flex;align-items:center;justify-content:center;color:white;font-weight:900;font-size:14px;flex-shrink:0;}
+
+/* SLBL */
+.slbl{font-size:11px;font-weight:800;color:var(--t3);letter-spacing:0.08em;text-transform:uppercase;}
+
+/* PILL */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:700;}
+
+/* INPUT */
+.inp{background:#f1f5f9;border:1.5px solid var(--bdr);border-radius:var(--rx);padding:10px 13px;font-size:14px;color:var(--t);width:100%;transition:border-color 0.2s;}
+.inp:focus{outline:none;border-color:var(--g);}
+.inp-sm{width:86px;}
+
+/* SAVE BTN */
+.sbtn{background:linear-gradient(135deg,var(--g),var(--g2));color:white;border:none;border-radius:var(--rs);padding:14px;font-size:14px;font-weight:800;cursor:pointer;width:100%;box-shadow:0 4px 14px rgba(22,163,74,0.28);transition:all 0.2s;letter-spacing:0.02em;}
+.sbtn:active{transform:scale(0.98);}
+
+/* RATING */
+.rat{display:flex;gap:5px;}
+.rdot{width:30px;height:30px;border-radius:8px;border:2px solid var(--bdr);background:white;cursor:pointer;transition:all 0.15s;}
+
+/* WEEK CAL */
+.wcal{display:flex;gap:3px;}
+.wday{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 2px;border-radius:12px;cursor:pointer;transition:all 0.15s;border:1.5px solid transparent;}
+.wday-lbl{font-size:9px;font-weight:700;color:var(--t3);}
+.wday-num{font-size:14px;font-weight:800;color:var(--t2);}
+.wday-dot{width:5px;height:5px;border-radius:50%;}
+.wday.today{background:var(--g);}
+.wday.today .wday-lbl,.wday.today .wday-num{color:white;}
+.wday.has-data{background:var(--gl);border-color:var(--gm);}
+.wday.has-data .wday-num{color:var(--g2);}
+
+/* CHECKLIST */
+.cl-sec{border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);}
+.cl-hdr{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;}
+.cl-hdr-t{font-size:12px;font-weight:800;color:white;letter-spacing:0.02em;}
+.cl-hdr-c{font-size:10px;font-weight:700;background:rgba(255,255,255,0.25);color:white;padding:2px 7px;border-radius:100px;}
+.cl-body{background:white;}
+.cl-item{display:flex;align-items:center;gap:11px;padding:12px 16px;border-bottom:1px solid var(--bdr);cursor:pointer;background:none;border-left:none;border-right:none;border-top:none;width:100%;text-align:left;transition:background 0.1s;}
+.cl-item:last-child{border-bottom:none;}
+.cl-item:active{background:#f8fafc;}
+.cl-box{width:21px;height:21px;border-radius:6px;border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;color:white;font-size:11px;font-weight:800;}
+.cl-box.done{border-color:var(--g);background:var(--g);}
+.cl-txt{font-size:13px;font-weight:600;color:var(--t2);}
+.cl-txt.done{color:var(--t3);text-decoration:line-through;}
+.cl-sub{font-size:11px;color:var(--t3);margin-top:1px;}
+
+/* PROGRESS RING */
+.prog-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;}
+.prog-wrap svg{transform:rotate(-90deg);}
+.prog-lbl{position:absolute;text-align:center;}
+
+/* STREAK */
+.streak-card{border-radius:var(--r);padding:16px 18px;background:linear-gradient(135deg,#ea580c,#dc2626);color:white;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--sh);}
+
+/* ACTIVITY CARD */
+.act-card{border-radius:var(--r);padding:18px 20px;color:white;position:relative;overflow:hidden;box-shadow:var(--shm);}
+.act-card::after{content:'';position:absolute;top:-24px;right:-24px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.1);}
+.act-card::before{content:'';position:absolute;bottom:-30px;right:16px;width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,0.07);}
+
+/* STRETCH */
+.str-card{background:white;border:1.5px solid var(--bdr);border-radius:var(--rs);padding:14px;margin-bottom:8px;}
+.timer-btn{padding:6px 14px;border-radius:100px;border:none;font-family:var(--fn);font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;}
+
+/* BAR CHART */
+.bar-wrap{display:flex;align-items:flex-end;gap:4px;height:65px;}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.bar{width:100%;border-radius:4px;}
+.bar-v{font-size:9px;color:var(--t3);font-weight:700;height:12px;display:flex;align-items:flex-end;}
+.bar-d{font-size:9px;font-weight:700;color:var(--t3);}
+
+/* GOAL ROW */
+.goal-row{display:flex;align-items:center;gap:13px;padding:12px 0;border-bottom:1px solid var(--bdr);}
+.goal-row:last-child{border-bottom:none;}
+.goal-ico{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* SECTION GAP */
+.fg{display:flex;flex-direction:column;gap:14px;}
 </style>
 </head>
 <body>
+<div id="content">
 
-<div id="app">
-  <!-- Header -->
-  <div id="header" style="padding:28px 16px 16px;border-bottom:1px solid rgba(255,255,255,0.06);">
-    <div style="font-size:11px;letter-spacing:0.15em;color:rgba(255,255,255,0.35);margin-bottom:4px;" id="date-label"></div>
-    <div style="display:flex;align-items:baseline;gap:12px;">
-      <h1 style="font-size:24px;font-weight:700;letter-spacing:-0.02em;">Jan's Dashboard</h1>
-      <span class="badge" style="background:#e8ff47;color:#0a0a0c;">LIVE</span>
-    </div>
-    <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;" id="today-badge"></div>
-  </div>
-
-  <!-- Tabs -->
-  <div class="tab-bar">
-    <button class="tab-btn active" onclick="showTab('today')">Vandaag</button>
-    <button class="tab-btn" onclick="showTab('week')">Weekplan</button>
-    <button class="tab-btn" onclick="showTab('stretch')">Stretch</button>
-    <button class="tab-btn" onclick="showTab('mma')">MMA</button>
-    <button class="tab-btn" onclick="showTab('stats')">Stats</button>
-    <button class="tab-btn" onclick="showTab('goals')">Goals</button>
-  </div>
-
-  <!-- TODAY -->
-  <div id="tab-today" class="section active">
-    <div class="stat-grid" id="quick-stats"></div>
-
-    <div class="card">
-      <div class="card-title" style="color:#e8ff47;">🏋️ Training</div>
-      <label class="label">Type training</label>
-      <input class="input" id="f-training" placeholder="bijv. Push dag" style="margin-bottom:10px;"/>
-      <label class="label">Notities sessie</label>
-      <textarea class="input" id="f-notes" rows="2" placeholder="Hoe was de sessie? PR's? Iets opvallends?"></textarea>
-    </div>
-
-    <div class="card">
-      <div class="card-title" style="color:#b47eff;">😴 Slaap</div>
-      <label class="label">Uren geslapen</label>
-      <input class="input input-sm" id="f-sleep" type="number" step="0.5" min="0" max="12" placeholder="8.0" style="margin-bottom:12px;"/>
-      <label class="label">Slaapkwaliteit</label>
-      <div class="rating" id="rating-sleep"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title" style="color:#47e8d4;">⚖️ Gewicht</div>
-      <label class="label">Gewicht (kg)</label>
-      <input class="input input-sm" id="f-weight" type="number" step="0.1" placeholder="78.5"/>
-    </div>
-
-    <div class="card">
-      <div class="card-title" style="color:#ff47a3;">🧠 Energie & Mood</div>
-      <label class="label" style="margin-bottom:8px;">Energieniveau</label>
-      <div class="rating" id="rating-energy" style="margin-bottom:14px;"></div>
-      <label class="label" style="margin-bottom:8px;">Mood</label>
-      <div class="rating" id="rating-mood"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title" style="color:#47ffb4;">📚 Lezen</div>
-      <label class="label">Minuten gelezen</label>
-      <input class="input input-sm" id="f-reading" type="number" min="0" placeholder="30"/>
-    </div>
-
-    <button class="btn-save" id="save-btn" onclick="saveToday()">Dag opslaan</button>
-  </div>
-
-  <!-- WEEK -->
-  <div id="tab-week" class="section">
-    <div style="font-size:12px;color:rgba(255,255,255,0.35);">Jouw dagindeling — job 07:30–17:30, training 19:00–22:00</div>
-    <div class="day-sel" id="week-day-sel"></div>
-    <div id="week-day-header"></div>
-    <div class="timeline" id="week-timeline"></div>
-    <div id="week-flex-note"></div>
-  </div>
-
-  <!-- STRETCH -->
-  <div id="tab-stretch" class="section">
-    <div style="font-size:12px;color:rgba(255,255,255,0.35);">Stretch & mobility — kicks + flexibiliteit</div>
-    <div class="day-sel" id="stretch-day-sel"></div>
-    <div id="stretch-header"></div>
-    <div id="stretch-list"></div>
-    <div id="technique-list"></div>
-    <div class="hint">💡 Stretch nooit koud — altijd na training of na 5 min licht bewegen. Reken 6–8 weken voor merkbaar verschil in flexibiliteit.</div>
-  </div>
-
-  <!-- MMA -->
-  <div id="tab-mma" class="section">
-    <div style="font-size:12px;color:rgba(255,255,255,0.35);">MMA mindset & gewoonten — uit je saved reels</div>
-    <div class="scroll-x" id="mma-sec-btns"></div>
-    <div id="mma-header"></div>
-    <div id="mma-daily-list"></div>
-    <div id="mma-info-list"></div>
-  </div>
-
-  <!-- STATS -->
-  <div id="tab-stats" class="section">
-    <div style="font-size:12px;color:rgba(255,255,255,0.35);">Laatste 7 dagen</div>
-    <div class="card">
-      <div class="card-title" style="color:#b47eff;">😴 Slaap</div>
-      <div class="bar-chart" id="chart-sleep"></div>
-    </div>
-    <div class="card">
-      <div class="card-title" style="color:#e8ff47;">⚡ Energie</div>
-      <div class="bar-chart" id="chart-energy"></div>
-    </div>
-    <div class="card">
-      <div class="card-title" style="color:#47ffb4;">📚 Lezen</div>
-      <div class="bar-chart" id="chart-reading"></div>
-      <div style="margin-top:10px;font-size:11px;color:rgba(255,255,255,0.3);" id="reading-total"></div>
-    </div>
-    <div class="card">
-      <div class="card-title" style="color:#47e8d4;">⚖️ Gewicht</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;" id="weight-list"></div>
+<!-- ═══════════════════════════ HOME ═════════════════════════════════════════-->
+<div id="page-home" class="page active">
+  <div class="hdr">
+    <div class="row between">
+      <div>
+        <div style="font-size:12px;color:var(--t3);font-weight:600;" id="h-date"></div>
+        <div style="font-size:24px;font-weight:900;margin-top:1px;letter-spacing:-0.02em;">Hey Jan 👋</div>
+      </div>
+      <div class="avatar">J</div>
     </div>
   </div>
+  <div id="home-inner"></div>
+</div>
 
-  <!-- GOALS -->
-  <div id="tab-goals" class="section">
-    <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:4px;">Jouw 6 kerndoelen</div>
-    <div id="goals-list"></div>
-    <div class="card" style="background:rgba(232,255,71,0.05);border-color:rgba(232,255,71,0.15);">
-      <div class="card-title" style="color:#e8ff47;">📌 Dagelijkse routine</div>
-      <div id="routine-list"></div>
+<!-- ══════════════════════════ STRETCH ═══════════════════════════════════════-->
+<div id="page-stretch" class="page">
+  <div class="hdr">
+    <div style="font-size:22px;font-weight:900;letter-spacing:-0.02em;">Stretch & Mobility</div>
+    <div style="font-size:13px;color:var(--t2);margin-top:3px;">Kicks · Flexibility · Technique</div>
+  </div>
+  <div class="page-scroll fg" style="padding-top:16px;">
+    <div style="display:flex;gap:5px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;" id="str-pills"></div>
+    <div id="str-header"></div>
+    <div id="str-exercises"></div>
+    <div id="str-technique"></div>
+    <div class="card cp" style="background:var(--gl);border:1.5px solid var(--gm);">
+      <div style="font-size:13px;color:var(--g2);font-weight:600;line-height:1.6;">
+        💡 Never stretch cold. Always after training or 5 min warm-up. Allow 6–8 weeks for noticeable flexibility gains.
+      </div>
     </div>
+    <div style="height:8px;"></div>
   </div>
 </div>
 
+<!-- ══════════════════════════ TRAINING ══════════════════════════════════════-->
+<div id="page-training" class="page">
+  <div class="hdr">
+    <div style="font-size:22px;font-weight:900;letter-spacing:-0.02em;">Training</div>
+    <div style="font-size:13px;color:var(--t2);margin-top:3px;">Kickbox · Ring comfort · Tips</div>
+  </div>
+  <div class="page-scroll fg" style="padding-top:16px;">
+    <div style="display:flex;gap:6px;flex-wrap:wrap;" id="tr-sec-btns"></div>
+    <div id="tr-header"></div>
+    <div class="card cp" id="tr-checklist"></div>
+    <div class="card cp" id="tr-principles"></div>
+    <div style="height:8px;"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ STATS ═══════════════════════════════════════-->
+<div id="page-stats" class="page">
+  <div class="hdr">
+    <div style="font-size:22px;font-weight:900;letter-spacing:-0.02em;">Stats & Log</div>
+    <div style="font-size:13px;color:var(--t2);margin-top:3px;">Track your progress</div>
+  </div>
+  <div class="page-scroll fg" style="padding-top:16px;">
+    <div>
+      <div class="slbl" style="margin-bottom:10px;">DAILY LOG</div>
+      <div class="card cp fg" style="gap:13px;">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:7px;">Energy</div>
+          <div class="rat" id="s-energy-rat"></div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:7px;">Mood</div>
+          <div class="rat" id="s-mood-rat"></div>
+        </div>
+        <div class="row" style="gap:12px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;">Sleep (hrs)</div>
+            <input class="inp inp-sm" id="s-sleep" type="number" step="0.5" placeholder="8.0"/>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;">Reading (min)</div>
+            <input class="inp inp-sm" id="s-reading" type="number" placeholder="30"/>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;">Session notes</div>
+          <textarea class="inp" id="s-notes" rows="2" placeholder="How was the session?"></textarea>
+        </div>
+        <button class="sbtn" onclick="saveLog()">Save day ✓</button>
+      </div>
+    </div>
+    <div>
+      <div class="slbl" style="margin-bottom:10px;">WEEKLY WEIGHT</div>
+      <div class="card cp fg" style="gap:12px;">
+        <div style="font-size:12px;font-weight:600;color:var(--t2);">Weigh-in once a week, first thing in the morning</div>
+        <div class="row" style="gap:10px;">
+          <input class="inp inp-sm" id="s-weight" type="number" step="0.1" placeholder="78.5"/>
+          <button class="sbtn" style="flex:1;" onclick="saveWeight()">Save weight</button>
+        </div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;" id="weight-chips"></div>
+      </div>
+    </div>
+    <div>
+      <div class="slbl" style="margin-bottom:10px;">SLEEP</div>
+      <div class="card cp"><div class="bar-wrap" id="chart-sleep"></div></div>
+    </div>
+    <div>
+      <div class="slbl" style="margin-bottom:10px;">ENERGY</div>
+      <div class="card cp"><div class="bar-wrap" id="chart-energy"></div></div>
+    </div>
+    <div>
+      <div class="slbl" style="margin-bottom:10px;">READING</div>
+      <div class="card cp">
+        <div class="bar-wrap" id="chart-reading"></div>
+        <div style="margin-top:10px;font-size:11px;color:var(--t3);font-weight:600;" id="reading-total"></div>
+      </div>
+    </div>
+    <div>
+      <div class="slbl" style="margin-bottom:10px;">GOALS</div>
+      <div class="card cp" id="goals-list"></div>
+    </div>
+    <div style="height:8px;"></div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<!-- BOTTOM NAV -->
+<nav id="bnav">
+  <button class="ni active" onclick="showPage('home')" id="ni-home">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <path d="M3 9.5L11 3L19 9.5V19C19 19.55 18.55 20 18 20H14V14H8V20H4C3.45 20 3 19.55 3 19V9.5Z" stroke="#16a34a" stroke-width="1.8" stroke-linejoin="round" fill="none" id="ico-home-s"/>
+    </svg>
+    <div class="ni-lbl">Home</div>
+  </button>
+  <button class="ni" onclick="showPage('stretch')" id="ni-stretch">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <circle cx="11" cy="5" r="2" stroke="#94a3b8" stroke-width="1.8" fill="none" id="ico-str-h"/>
+      <path d="M11 7V12M8 10L5 14M14 10L17 14M8 14L6 19M14 14L16 19" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round" id="ico-str-b"/>
+    </svg>
+    <div class="ni-lbl">Stretch</div>
+  </button>
+  <button class="ni" onclick="showPage('training')" id="ni-training">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <circle cx="4" cy="11" r="2.5" stroke="#94a3b8" stroke-width="1.8" fill="none" id="ico-tr-l"/>
+      <circle cx="18" cy="11" r="2.5" stroke="#94a3b8" stroke-width="1.8" fill="none" id="ico-tr-r"/>
+      <path d="M6.5 11H15.5" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" id="ico-tr-bar"/>
+      <path d="M1.5 9.5V12.5M20.5 9.5V12.5" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round" id="ico-tr-ends"/>
+    </svg>
+    <div class="ni-lbl">Training</div>
+  </button>
+  <button class="ni" onclick="showPage('stats')" id="ni-stats">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <rect x="3" y="13" width="4" height="6" rx="1.5" stroke="#94a3b8" stroke-width="1.8" fill="none" id="ico-st-1"/>
+      <rect x="9" y="9" width="4" height="10" rx="1.5" stroke="#94a3b8" stroke-width="1.8" fill="none" id="ico-st-2"/>
+      <rect x="15" y="5" width="4" height="14" rx="1.5" stroke="#94a3b8" stroke-width="1.8" fill="none" id="ico-st-3"/>
+    </svg>
+    <div class="ni-lbl">Stats</div>
+  </button>
+</nav>
+
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
-const DAYS = ["Ma","Di","Wo","Do","Vr","Za","Zo"];
-const FULL_DAYS = ["Maandag","Dinsdag","Woensdag","Donderdag","Vrijdag","Zaterdag","Zondag"];
+const DS=["Mo","Tu","We","Th","Fr","Sa","Su"];
+const DF=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 
-const WEEK_PLAN = [
-  { day:"Ma", focus:"Kracht – Push", type:"gym", icon:"🏋️", detail:"Borst, Schouders, Triceps", flexijob:false,
-    schedule:[{t:"06:15",l:"Opstaan + ochtendroutine",i:"☀️"},{t:"07:30",l:"Hoofdjob start",i:"💼"},{t:"17:30",l:"Job gedaan — thuis + eten",i:"🍽️"},{t:"18:30",l:"Stretch & mobiliteit (20 min)",i:"🧘"},{t:"19:00",l:"Gym — Push (borst, schouders, triceps)",i:"🏋️"},{t:"20:30",l:"Thuis, cooldown + lezen",i:"📚"},{t:"22:30",l:"Slaap",i:"😴"}]},
-  { day:"Di", focus:"MMA / BJJ", type:"mma", icon:"🥊", detail:"Techniek + sparring", flexijob:false,
-    schedule:[{t:"06:15",l:"Opstaan + ochtendroutine",i:"☀️"},{t:"07:30",l:"Hoofdjob start",i:"💼"},{t:"17:30",l:"Job gedaan — thuis + eten",i:"🍽️"},{t:"18:30",l:"Opwarmen + lichte stretch (15 min)",i:"🧘"},{t:"19:00",l:"MMA / BJJ training",i:"🥊"},{t:"21:00",l:"Thuis, herstelstretch + lezen",i:"📚"},{t:"22:30",l:"Slaap",i:"😴"}]},
-  { day:"Wo", focus:"Kracht – Pull", type:"gym", icon:"🏋️", detail:"Rug, Biceps, Rear delt", flexijob:false,
-    schedule:[{t:"06:15",l:"Opstaan + ochtendroutine",i:"☀️"},{t:"07:30",l:"Hoofdjob start",i:"💼"},{t:"17:30",l:"Job gedaan — thuis + eten",i:"🍽️"},{t:"18:30",l:"Stretch — heup & hamstrings (20 min)",i:"🧘"},{t:"19:00",l:"Gym — Pull (rug, biceps)",i:"🏋️"},{t:"20:30",l:"Thuis, cooldown + lezen",i:"📚"},{t:"22:30",l:"Slaap",i:"😴"}]},
-  { day:"Do", focus:"Actief herstel", type:"rest", icon:"🧘", detail:"Stretch + lezen (30 min)", flexijob:true,
-    schedule:[{t:"06:15",l:"Opstaan + ochtendroutine",i:"☀️"},{t:"07:30",l:"Hoofdjob start",i:"💼"},{t:"17:30",l:"Job gedaan",i:"💼"},{t:"18:00",l:"⚡ Flexijob (mogelijks)",i:"💰",flex:true},{t:"20:00",l:"Thuis — eten",i:"🍽️"},{t:"20:30",l:"Volledige stretch sessie (25 min)",i:"🧘"},{t:"21:00",l:"Lezen (30 min)",i:"📚"},{t:"22:30",l:"Slaap",i:"😴"}]},
-  { day:"Vr", focus:"Kracht – Legs", type:"gym", icon:"🏋️", detail:"Quads, Hamstrings, Glutes", flexijob:false,
-    schedule:[{t:"06:15",l:"Opstaan + ochtendroutine",i:"☀️"},{t:"07:30",l:"Hoofdjob start",i:"💼"},{t:"17:30",l:"Job gedaan — thuis + eten",i:"🍽️"},{t:"18:30",l:"Stretch — adductoren (15 min)",i:"🧘"},{t:"19:00",l:"Gym — Legs (quads, hamstrings)",i:"🏋️"},{t:"20:30",l:"Thuis, cooldown + lezen",i:"📚"},{t:"22:30",l:"Slaap",i:"😴"}]},
-  { day:"Za", focus:"MMA / Sparring", type:"mma", icon:"🥊", detail:"Volledige sessie", flexijob:true,
-    schedule:[{t:"07:30",l:"Opstaan (iets later)",i:"☀️"},{t:"08:00",l:"Ontbijt + voorbereiding",i:"🍽️"},{t:"09:00",l:"⚡ Flexijob (mogelijks)",i:"💰",flex:true},{t:"13:00",l:"Vrije tijd / herstel",i:"🛋️"},{t:"18:30",l:"Opwarmen + stretch (15 min)",i:"🧘"},{t:"19:00",l:"MMA / Sparring sessie",i:"🥊"},{t:"21:00",l:"Post-training cooldown + eten",i:"🍽️"},{t:"23:00",l:"Slaap",i:"😴"}]},
-  { day:"Zo", focus:"Rust & Lezen", type:"rest", icon:"📚", detail:"Geen training, 45 min lezen", flexijob:true,
-    schedule:[{t:"08:00",l:"Uitslapen",i:"😴"},{t:"09:00",l:"Rustig ontbijt",i:"🍽️"},{t:"10:00",l:"⚡ Flexijob (mogelijks)",i:"💰",flex:true},{t:"13:00",l:"Vrije tijd / sociaal",i:"🛋️"},{t:"17:00",l:"Basisstretch (10 min)",i:"🧘"},{t:"18:00",l:"Lezen (45 min)",i:"📚"},{t:"20:00",l:"Meal prep / voorbereiding week",i:"🍽️"},{t:"22:30",l:"Slaap",i:"😴"}]},
+const WP=[
+  {d:"Mo",f:"Strength – Push",t:"gym",i:"💪",dt:"Chest · Shoulders · Triceps",fx:false},
+  {d:"Tu",f:"Kickboxing",t:"mma",i:"🥊",dt:"Technique + sparring",fx:false},
+  {d:"We",f:"Strength – Pull",t:"gym",i:"💪",dt:"Back · Biceps · Rear delt",fx:false},
+  {d:"Th",f:"Active Recovery",t:"rest",i:"🧘",dt:"Stretch · Read · Rest",fx:true},
+  {d:"Fr",f:"Strength – Legs",t:"gym",i:"💪",dt:"Quads · Hamstrings · Glutes",fx:false},
+  {d:"Sa",f:"Kickboxing / Sparring",t:"mma",i:"🥊",dt:"Full session",fx:true},
+  {d:"Su",f:"Rest & Read",t:"rest",i:"📖",dt:"No training · 45 min reading",fx:true},
 ];
 
-const STRETCH_SCHEDULE = [
-  { label:"Mobiliteit + Traptechniek", duration:"25–30 min", type:"mobility",
-    stretches:[{name:"Heupflexor stretch",dur:"60 sec/kant",cue:"Knie op de grond, andere voet voor. Bekken recht naar voor duwen tot spanning in de lies."},{name:"Pigeon pose",dur:"90 sec/kant",cue:"Vanuit viervoeter één been schuin voor je leggen, ander been gestrekt achter. Romp naar voor zakken."},{name:"Wide leg forward fold",dur:"90 sec",cue:"Benen wijd gespreid zittend, romp langzaam naar voor laten zakken. Rug zo recht mogelijk houden."}],
-    technique:[{name:"Slow motion roundhouse",sets:"3×10/kant",cue:"Trap uitvoeren in slowmotion. Focus op heuprotatie en knielifte — niet op snelheid."},{name:"Trap tegen de muur",sets:"3×10/kant",cue:"Sta naast een muur als steun. Oefen de knielifte en rotatie geïsoleerd voordat je doortrapt."}]},
-  { label:"Lichte herstelstretch", duration:"10–15 min", type:"recovery",
-    stretches:[{name:"Butterfly stretch",dur:"90 sec",cue:"Zittend, voetzolen tegen elkaar, knieën zo ver mogelijk naar de grond. Licht naar voor leunen."},{name:"Seated forward fold",dur:"90 sec",cue:"Benen gestrekt voor je, handen naar voeten reiken, rug recht houden."},{name:"Staande quadstretch",dur:"30 sec/kant",cue:"Sta op één been, trek de enkel naar je bil. Bekken lichtjes naar voor kantelen."}],
-    technique:[]},
-  { label:"Diepe heup & hamstrings", duration:"20–25 min", type:"mobility",
-    stretches:[{name:"Lizard pose",dur:"60 sec/kant",cue:"Grote stap naar voor, voorste knie boven enkel, achterste been gestrekt. Heupen laag houden."},{name:"90/90 heupstretch",dur:"60 sec/kant",cue:"Zit met beide benen in een 90° hoek. Wissel zijden zonder hulp van de handen."},{name:"Hamstring stretch met band",dur:"60 sec/kant",cue:"Liggend op rug, been omhoog met band of handdoek. Been gestrekt houden, voet flexen."}],
-    technique:[{name:"Staande knielifte",sets:"3×15/kant",cue:"Focus op explosieve knielifte tot heuphoogte. Basis voor alle trapsoorten."}]},
-  { label:"Volledige stretch sessie", duration:"20–25 min", type:"deep",
-    stretches:[{name:"Pigeon pose",dur:"90 sec/kant",cue:"Diepe heupopener. Romp ontspannen zakken, geen kracht zetten."},{name:"Wide leg forward fold",dur:"90 sec",cue:"Maximale adductorenstretch. Essentieel voor hoge trappen."},{name:"Lizard pose",dur:"60 sec/kant",cue:"Ellebogen naar de vloer brengen voor extra diepte als dat lukt."},{name:"Butterfly stretch",dur:"90 sec",cue:"Voetzolen bij elkaar, knieën naar de grond laten zakken onder eigen gewicht."},{name:"Sumo squat hold",dur:"60 sec",cue:"Voeten breed, tenen uitdraaien, diep door de knieën. Ellebogen duwen knieën open."}],
-    technique:[{name:"Slow motion sidekick",sets:"3×8/kant",cue:"Til het been langzaam op via knielifte, strek zijwaarts, trek terug. Focus op controle."},{name:"Trap + houdstand",sets:"3×10/kant",cue:"Na de trap het been 2 seconden hoog houden. Traint trapkracht en balans tegelijk."}]},
-  { label:"Adductoren + trapkracht", duration:"15–20 min", type:"mobility",
-    stretches:[{name:"Wide leg forward fold",dur:"90 sec",cue:"Prioriteit vandaag — adductoren zijn cruciaal voor hoge trappen."},{name:"Sumo squat hold",dur:"60 sec",cue:"Voeten breed, tenen uitdraaien. Ellebogen duwen knieën open voor diepere stretch."},{name:"Heupflexor stretch",dur:"60 sec/kant",cue:"Bekken naar voor duwen, romp rechtop. Voel de stretch in de voorste lies."}],
-    technique:[{name:"Bandkicks",sets:"3×15/kant",cue:"Met een weerstandsband om de enkels trappen uitvoeren. Bouwt specifieke trapkracht."},{name:"Slow motion roundhouse",sets:"3×10/kant",cue:"Na de krachttraining van vandaag — focus op techniek, niet op kracht."}]},
-  { label:"Post-training cooldown", duration:"10 min", type:"recovery",
-    stretches:[{name:"Butterfly stretch",dur:"60 sec",cue:"Rustpositie na sparring. Laat de heupen zakken zonder te forceren."},{name:"Seated forward fold",dur:"60 sec",cue:"Ontspan de hamstrings na het trappen en bewegen."},{name:"Liggend gekruiste heupstretch",dur:"60 sec/kant",cue:"Op rug liggen, been over het andere leggen, trek zacht naar je toe. Piriformis stretch."}],
-    technique:[]},
-  { label:"Dagelijkse basisroutine", duration:"5–10 min", type:"daily",
-    stretches:[{name:"Heupflexor stretch",dur:"60 sec/kant",cue:"Elke dag. Heupen gaan dicht van zitten — dit houdt ze open."},{name:"Butterfly stretch",dur:"60 sec",cue:"Elke dag. Voetzolen bij elkaar, ontspannen zakken."},{name:"Staande quadstretch",dur:"30 sec/kant",cue:"Elke dag. Snel en effectief, ook staand te doen."}],
-    technique:[]},
-];
-
-const MMA_MINDSET = {
-  consistency:{label:"Wat houdt je consistent",icon:"🙏",color:"#e8ff47",
-    daily:["Create clear routines","Discipline over motivation","Record your training sessions","Track your progress","Training with intention","Consistency > intensity","Trusting the process"],
-    info:["Set realistic goals","Get a structured training program","Enough recovery","Listening to your body","Quality over quantity","Reducing excuses","Good friends and environment"]},
-  performance:{label:"Performen in MMA",icon:"🎯",color:"#ff6b35",
-    daily:["Mental preparation","Focus on your game plan","Control your emotions","Stay focused round by round","Trust your preparation"],
-    info:["Trust your training","Stay disciplined in camp","Fuel your body properly","Improve your conditioning","Develop a fight day routine","Listen to your corner","Stay sharp during fight week","Train under pressure"]},
-  habits:{label:"Daily habits",icon:"🧘",color:"#47ffb4",
-    daily:["8+ uur slaap","Ochtend zonlicht","10–30 min wandelen","Plan je dag de avond ervoor","Morning hydration","Cool down na training","Breathing exercises","Lezen","Avoid junk food"],
-    info:["Eat quality food","Limit distractions","Track your training progress","Spend time outside","Take care of your body","Start journaling"]},
-  iq:{label:"MMA IQ verhogen",icon:"🧠",color:"#b47eff",
-    daily:["Watch high level fighters","Study different fighting styles","Analyze UFC champions","Review your sparring footage","Think one step ahead"],
-    info:["Drill specific situations","Learn from your mistakes","Improve your timing","Understand distance control","Work on your fight reactions","Spar different opponents","Develop your game plan"]},
-  cage:{label:"Comfortabeler in the cage",icon:"🥊",color:"#ff47a3",
-    daily:["Shadowbox everyday","Spar more technically","Drill your combos","Repeat the basics daily","Stay relaxed under pressure","Train even when tired"],
-    info:["Improve your footwork","Train both stances","Work on your defense","Cage wrestling rounds","Reaction & reflex drills","Improve your cardio","Watch fight footage","Repetition over time"]},
+const CL={
+  gym:[
+    {s:"Morning",col:"#d97706",items:[
+      {id:"wake",l:"Wake up by 06:15"},
+      {id:"sun",l:"Morning sunlight (5–10 min)",sub:"Outside or near window"},
+      {id:"water",l:"Drink 500ml water",sub:"Before coffee"},
+      {id:"plan",l:"Plan your day",sub:"Review schedule"},
+    ]},
+    {s:"Work",col:"#2563eb",items:[
+      {id:"work",l:"Work 07:30 – 17:30"},
+      {id:"flex",l:"Flexjob (if scheduled)"},
+    ]},
+    {s:"Training",col:"#16a34a",items:[
+      {id:"pre",l:"Pre-workout stretch (15 min)",sub:"Hip flexors + mobility"},
+      {id:"gym",l:"Gym session",sub:"Push / Pull / Legs"},
+      {id:"cool",l:"Cooldown stretch"},
+    ]},
+    {s:"Evening",col:"#7c3aed",items:[
+      {id:"eat",l:"Quality food",sub:"No junk"},
+      {id:"read",l:"Read (30 min)"},
+      {id:"screen",l:"Screen off by 22:00"},
+      {id:"sleep",l:"Sleep by 22:30",sub:"8h target"},
+    ]},
+  ],
+  mma:[
+    {s:"Morning",col:"#d97706",items:[
+      {id:"wake",l:"Wake up by 06:15"},
+      {id:"sun",l:"Morning sunlight"},
+      {id:"water",l:"Drink 500ml water"},
+      {id:"plan",l:"Plan your day"},
+    ]},
+    {s:"Work",col:"#2563eb",items:[
+      {id:"work",l:"Work 07:30 – 17:30"},
+      {id:"flex",l:"Flexjob (if scheduled)"},
+    ]},
+    {s:"Kickboxing",col:"#ea580c",items:[
+      {id:"warmup",l:"Warm-up + light stretch",sub:"15 min before class"},
+      {id:"kb",l:"Kickboxing session",sub:"Technique + sparring"},
+      {id:"shadow",l:"Shadowbox (10 min)",sub:"Focus on combos"},
+      {id:"cool",l:"Recovery stretch"},
+    ]},
+    {s:"Evening",col:"#7c3aed",items:[
+      {id:"eat",l:"Quality meal",sub:"Protein + carbs"},
+      {id:"read",l:"Read (30 min)"},
+      {id:"sleep",l:"Sleep by 22:30"},
+    ]},
+  ],
+  rest:[
+    {s:"Morning",col:"#d97706",items:[
+      {id:"wake",l:"Wake up (no alarm if possible)"},
+      {id:"sun",l:"Morning sunlight"},
+      {id:"water",l:"Drink 500ml water"},
+      {id:"plan",l:"Plan your day"},
+    ]},
+    {s:"Work",col:"#2563eb",items:[
+      {id:"work",l:"Work (if weekday)"},
+      {id:"flex",l:"Flexjob (if scheduled)"},
+    ]},
+    {s:"Recovery",col:"#7c3aed",items:[
+      {id:"str",l:"Full stretch session",sub:"25 min — see Stretch tab"},
+      {id:"walk",l:"Walk 10–30 min",sub:"Outside, no headphones"},
+      {id:"breathe",l:"Breathing exercises",sub:"5 min box breathing"},
+    ]},
+    {s:"Evening",col:"#7c3aed",items:[
+      {id:"eat",l:"Quality food"},
+      {id:"read",l:"Read (45 min)",sub:"Rest day = more reading"},
+      {id:"prep",l:"Meal prep (Sunday)"},
+      {id:"sleep",l:"Sleep by 22:30"},
+    ]},
+  ],
 };
 
-const GOALS = [
-  {label:"Kracht / Spiermassa",icon:"💪",target:"3x gym/week",color:"#e8ff47"},
-  {label:"Vechtsporten / MMA",icon:"🥊",target:"2x MMA/week",color:"#ff6b35"},
-  {label:"Vetpercentage verlagen",icon:"📉",target:"< 12% bf",color:"#47e8d4"},
-  {label:"Slaap optimaliseren",icon:"😴",target:"8u / nacht",color:"#b47eff"},
-  {label:"Mentale gezondheid",icon:"🧠",target:"Daily check-in",color:"#ff47a3"},
-  {label:"Voldoende lezen",icon:"📚",target:"30 min / dag",color:"#47ffb4"},
+const SS=[
+  {l:"Mobility + Kick Technique",d:"25–30 min",t:"mobility",c:"var(--or)",
+   s:[{n:"Hip flexor stretch",d:"60s/side",c:"Knee on ground, other foot forward. Push pelvis until tension in groin."},{n:"Pigeon pose",d:"90s/side",c:"From all-fours, one leg diagonal in front, other extended back. Let chest sink."},{n:"Wide leg forward fold",d:"90s",c:"Legs spread wide seated, slowly lower torso. Keep back straight."}],
+   tech:[{n:"Slow motion roundhouse",s:"3×10/side",c:"Execute in slow motion. Focus on hip rotation and knee lift — not speed."},{n:"Wall kick drill",s:"3×10/side",c:"Use wall for support. Practice knee lift and rotation isolated."}]},
+  {l:"Light Recovery Stretch",d:"10–15 min",t:"recovery",c:"var(--pu)",
+   s:[{n:"Butterfly stretch",d:"90s",c:"Soles together, knees toward floor. Lean slightly forward."},{n:"Seated forward fold",d:"90s",c:"Legs extended, reach toward feet, keep back straight."},{n:"Standing quad stretch",d:"30s/side",c:"Stand on one leg, pull ankle to glute. Tilt pelvis slightly forward."}],tech:[]},
+  {l:"Deep Hip & Hamstrings",d:"20–25 min",t:"mobility",c:"var(--or)",
+   s:[{n:"Lizard pose",d:"60s/side",c:"Big step forward, front knee above ankle, back leg extended. Keep hips low."},{n:"90/90 hip stretch",d:"60s/side",c:"Both legs at 90°. Switch sides without hands."},{n:"Banded hamstring stretch",d:"60s/side",c:"On back, leg up with band. Keep leg extended, flex foot."}],
+   tech:[{n:"Standing knee lifts",s:"3×15/side",c:"Explosive knee lifts to hip height. Foundation for all kicks."}]},
+  {l:"Full Stretch Session",d:"20–25 min",t:"deep",c:"var(--re)",
+   s:[{n:"Pigeon pose",d:"90s/side",c:"Deep hip opener. Let torso sink without forcing."},{n:"Wide leg forward fold",d:"90s",c:"Maximum adductor stretch. Essential for high kicks."},{n:"Lizard pose",d:"60s/side",c:"Bring elbows to floor for extra depth."},{n:"Butterfly stretch",d:"90s",c:"Soles together, let knees drop under own weight."},{n:"Sumo squat hold",d:"60s",c:"Feet wide, toes out, deep squat. Elbows push knees open."}],
+   tech:[{n:"Slow motion sidekick",s:"3×8/side",c:"Lift via knee, extend sideways, pull back. Control is key."},{n:"Kick + hold",s:"3×10/side",c:"Hold leg up 2 sec after kick. Builds strength + balance."}]},
+  {l:"Adductors + Kick Strength",d:"15–20 min",t:"mobility",c:"var(--or)",
+   s:[{n:"Wide leg forward fold",d:"90s",c:"Priority — adductors crucial for high kicks."},{n:"Sumo squat hold",d:"60s",c:"Feet wide, elbows push knees open for deeper stretch."},{n:"Hip flexor stretch",d:"60s/side",c:"Push pelvis forward, torso upright."}],
+   tech:[{n:"Band kicks",s:"3×15/side",c:"Resistance band around ankles. Builds specific kick strength."},{n:"Slow motion roundhouse",s:"3×10/side",c:"After leg day — focus on technique, not power."}]},
+  {l:"Post-Training Cooldown",d:"10 min",t:"recovery",c:"var(--pu)",
+   s:[{n:"Butterfly stretch",d:"60s",c:"Rest position after sparring. Let hips drop."},{n:"Seated forward fold",d:"60s",c:"Relax hamstrings after kicking."},{n:"Lying cross-body hip stretch",d:"60s/side",c:"On back, leg over other, gently pull toward you."}],tech:[]},
+  {l:"Daily Baseline Routine",d:"5–10 min",t:"daily",c:"var(--g)",
+   s:[{n:"Hip flexor stretch",d:"60s/side",c:"Every day. Hips tighten from sitting."},{n:"Butterfly stretch",d:"60s",c:"Every day. Relaxed sink."},{n:"Standing quad stretch",d:"30s/side",c:"Every day. Quick, can be done standing."}],tech:[]},
 ];
 
-const ROUTINE = ["3x/week kracht training","2x/week MMA / BJJ","8u slaap per nacht","30 min lezen per dag","Dagelijkse check-in invullen","1x/week weging in de ochtend"];
+const KB={
+  comfort:{l:"Comfort in the Ring",i:"ring",col:"var(--or)",
+    daily:["Shadowbox every day","Spar more technically","Drill your combos","Repeat the basics daily","Stay relaxed under pressure","Train even when tired"],
+    info:["Improve your footwork","Train both stances","Work on your defense","Reaction & reflex drills","Improve your cardio","Watch fight footage","Repetition over time"]},
+  stretch:{l:"Pre/Post Stretching",i:"flex",col:"var(--g)",
+    daily:["Hip flexor stretch before training","Butterfly stretch after training","Cool down — never skip","Pigeon pose on training days","Slow motion kick drill"],
+    info:["Wide leg forward fold — adductors","90/90 hip stretch — mobility","Lizard pose — deep hip flexor","Sumo squat hold — groin","Banded hamstring stretch","Band kicks — kick strength"]},
+};
 
-// ── STATE ─────────────────────────────────────────────────────────────────────
-const STORAGE_KEY = "jan_dashboard_v1";
-const MMA_CHECKS_KEY = "jan_mma_checks";
+const GOALS=[
+  {l:"Strength / Muscle",i:"💪",t:"3x gym/week",col:"var(--g)",bg:"var(--gl)"},
+  {l:"Kickboxing",i:"🥊",t:"2x kickbox/week",col:"var(--or)",bg:"var(--orl)"},
+  {l:"Lower body fat",i:"📉",t:"< 12% bf",col:"var(--bl)",bg:"var(--bll)"},
+  {l:"Optimize sleep",i:"😴",t:"8h / night",col:"var(--pu)",bg:"var(--pul)"},
+  {l:"Mental health",i:"🧠",t:"Daily check-in",col:"var(--re)",bg:"var(--rel)"},
+  {l:"Read daily",i:"📚",t:"30 min / day",col:"var(--g)",bg:"var(--gl)"},
+];
 
-function getTodayKey(){ return new Date().toISOString().slice(0,10); }
-function getDayIdx(){ return (new Date().getDay()+6)%7; }
+// ── STORAGE ───────────────────────────────────────────────────────────────────
+const SK="jan_v4",CLK="jan_cl_v4",KBK="jan_kb_v4";
+function ld(){try{return JSON.parse(localStorage.getItem(SK)||"{}");}catch{return{};}}
+function sv(d){try{localStorage.setItem(SK,JSON.stringify(d));}catch{}}
+function ldCL(){try{return JSON.parse(localStorage.getItem(CLK)||"{}");}catch{return{};}}
+function svCL(d){try{localStorage.setItem(CLK,JSON.stringify(d));}catch{}}
+function ldKB(){try{return JSON.parse(localStorage.getItem(KBK)||"{}");}catch{return{};}}
+function svKB(d){try{localStorage.setItem(KBK,JSON.stringify(d));}catch{}}
 
-function loadAll(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}"); }catch{return{};} }
-function saveAll(d){ try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(d)); }catch{} }
-function loadChecks(){ try{ return JSON.parse(localStorage.getItem(MMA_CHECKS_KEY)||"{}"); }catch{return{};} }
-function saveChecks(d){ try{ localStorage.setItem(MMA_CHECKS_KEY,JSON.stringify(d)); }catch{} }
+let allD=ld();
+const TK=new Date().toISOString().slice(0,10);
+const DI=(new Date().getDay()+6)%7;
+let tLog=Object.assign({energy:3,mood:3,sleep_hours:"",reading_minutes:"",notes:""},allD[TK]||{});
 
-let allData = loadAll();
-let todayLog = { training:"", notes:"", sleep_hours:"", sleep_quality:3, weight:"", energy:3, mood:3, reading_minutes:"" };
-const todayKey = getTodayKey();
-const dayIdx = getDayIndex();
-if(allData[todayKey]) Object.assign(todayLog, allData[todayKey]);
-
-function getDayIndex(){ return (new Date().getDay()+6)%7; }
-
-// ── RATINGS ───────────────────────────────────────────────────────────────────
-function buildRating(containerId, field, color){
-  const el = document.getElementById(containerId);
-  el.innerHTML="";
-  for(let i=1;i<=5;i++){
-    const b=document.createElement("button");
-    b.className="rating-dot";
-    b.style.background = i<=todayLog[field] ? color : "rgba(255,255,255,0.08)";
-    b.style.border = `1.5px solid ${i<=todayLog[field] ? color : "rgba(255,255,255,0.2)"}`;
-    b.onclick=(()=>{
-      const val=i;
-      return ()=>{
-        todayLog[field]=val;
-        buildRating(containerId,field,color);
-      };
-    })();
-    el.appendChild(b);
-  }
-}
-
-// ── HEADER ────────────────────────────────────────────────────────────────────
-function renderHeader(){
-  const now = new Date();
-  document.getElementById("date-label").textContent = now.toLocaleDateString("nl-BE",{weekday:"long",day:"numeric",month:"long"}).toUpperCase();
-  const plan = WEEK_PLAN[dayIdx];
-  const typeColor = plan.type==="gym"?"#e8ff47":plan.type==="mma"?"#ff6b35":"#b47eff";
-  const border = plan.type==="gym"?"rgba(232,255,71,0.25)":plan.type==="mma"?"rgba(255,107,53,0.25)":"rgba(180,126,255,0.25)";
-  const bg = plan.type==="gym"?"rgba(232,255,71,0.1)":plan.type==="mma"?"rgba(255,107,53,0.1)":"rgba(180,126,255,0.1)";
-  document.getElementById("today-badge").innerHTML=`
-    <span style="background:${bg};color:${typeColor};border:1px solid ${border};font-size:12px;padding:3px 10px;border-radius:6px;">${plan.icon} ${plan.focus}</span>
-    <span style="font-size:12px;color:rgba(255,255,255,0.35);">${plan.detail}</span>`;
-}
-
-// ── QUICK STATS ───────────────────────────────────────────────────────────────
-function renderQuickStats(){
-  const last7 = getLast7();
-  const sleeps = last7.filter(d=>d.data?.sleep_hours).map(d=>parseFloat(d.data.sleep_hours));
-  const energies = last7.filter(d=>d.data?.energy).map(d=>d.data.energy);
-  const reading = last7.filter(d=>d.data?.reading_minutes).reduce((s,d)=>s+parseInt(d.data.reading_minutes||0),0);
-  const avgS = sleeps.length?(sleeps.reduce((a,b)=>a+b,0)/sleeps.length).toFixed(1)+"u":"–";
-  const avgE = energies.length?(energies.reduce((a,b)=>a+b,0)/energies.length).toFixed(1)+"/5":"–";
-  const stats = [{label:"Gem. slaap",value:avgS,color:"#b47eff"},{label:"Gem. energie",value:avgE,color:"#e8ff47"},{label:"Lezen 7d",value:reading?reading+"m":"–",color:"#47ffb4"}];
-  document.getElementById("quick-stats").innerHTML = stats.map(s=>`
-    <div class="stat-card">
-      <div style="font-size:18px;font-weight:700;color:${s.color};">${s.value}</div>
-      <div style="font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:0.06em;margin-top:2px;">${s.label.toUpperCase()}</div>
-    </div>`).join("");
-}
-
-// ── TODAY FORM ────────────────────────────────────────────────────────────────
-function initTodayForm(){
-  document.getElementById("f-training").value = todayLog.training||"";
-  document.getElementById("f-notes").value = todayLog.notes||"";
-  document.getElementById("f-sleep").value = todayLog.sleep_hours||"";
-  document.getElementById("f-weight").value = todayLog.weight||"";
-  document.getElementById("f-reading").value = todayLog.reading_minutes||"";
-  buildRating("rating-sleep","sleep_quality","#b47eff");
-  buildRating("rating-energy","energy","#e8ff47");
-  buildRating("rating-mood","mood","#ff47a3");
-}
-
-function saveToday(){
-  todayLog.training = document.getElementById("f-training").value;
-  todayLog.notes = document.getElementById("f-notes").value;
-  todayLog.sleep_hours = document.getElementById("f-sleep").value;
-  todayLog.weight = document.getElementById("f-weight").value;
-  todayLog.reading_minutes = document.getElementById("f-reading").value;
-  allData[todayKey] = {...todayLog};
-  saveAll(allData);
-  const btn = document.getElementById("save-btn");
-  btn.textContent="✓ Opgeslagen"; btn.style.background="#47ffb4";
-  setTimeout(()=>{ btn.textContent="Dag opslaan"; btn.style.background="#e8ff47"; },2000);
-  renderQuickStats(); renderStats();
-}
-
-// ── WEEK TAB ──────────────────────────────────────────────────────────────────
-let weekSelectedDay = dayIdx;
-
-function renderWeekDaySel(){
-  const el = document.getElementById("week-day-sel");
-  el.innerHTML = WEEK_PLAN.map((d,i)=>{
-    const c = d.type==="gym"?"gym":d.type==="mma"?"mma":"rest";
-    const isActive = i===weekSelectedDay;
-    return `<button class="day-btn${isActive?" active-"+c:""}" onclick="selectWeekDay(${i})">
-      ${d.day}${d.flexijob?'<span class="flex-dot"></span>':''}
-    </button>`;
-  }).join("");
-}
-
-function selectWeekDay(i){ weekSelectedDay=i; renderWeekDaySel(); renderWeekDetail(); }
-
-function renderWeekDetail(){
-  const d = WEEK_PLAN[weekSelectedDay];
-  const typeColor = d.type==="gym"?"#e8ff47":d.type==="mma"?"#ff6b35":"#b47eff";
-  const borderCol = d.type==="gym"?"rgba(232,255,71,0.25)":d.type==="mma"?"rgba(255,107,53,0.25)":"rgba(180,126,255,0.25)";
-
-  document.getElementById("week-day-header").innerHTML=`
-    <div style="background:${typeColor}0d;border:1px solid ${borderCol};border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-      <div>
-        <div style="font-size:15px;font-weight:700;">${FULL_DAYS[weekSelectedDay]}</div>
-        <div style="font-size:13px;color:${typeColor};margin-top:2px;">${d.icon} ${d.focus} — ${d.detail}</div>
-      </div>
-      ${d.flexijob?`<div style="font-size:11px;background:rgba(255,107,53,0.15);color:#ff6b35;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,107,53,0.3);">💰 Flexijob dag</div>`:""}
-    </div>`;
-
-  document.getElementById("week-timeline").innerHTML = d.schedule.map((item,i)=>`
-    <div class="tl-row">
-      <div class="tl-line">
-        <div class="tl-dot" style="background:${item.flex?"#ff6b35":typeColor};border:2px solid ${item.flex?"rgba(255,107,53,0.3)":typeColor+"30"};"></div>
-        ${i<d.schedule.length-1?'<div class="tl-connector"></div>':""}
-      </div>
-      <div class="tl-content">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span class="tl-time">${item.t}</span>
-          <span style="font-size:13px;font-weight:${item.flex?600:500};color:${item.flex?"#ff6b35":"#f0f0f0"};">${item.i} ${item.l}</span>
-        </div>
-      </div>
-    </div>`).join("");
-
-  document.getElementById("week-flex-note").innerHTML = d.flexijob?`
-    <div style="background:rgba(255,107,53,0.06);border:1px solid rgba(255,107,53,0.2);border-radius:10px;padding:12px 14px;font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
-      ⚡ Flexijob ingepland op deze dag. Als die uitvalt: extra vrije tijd of vervroegd slapen. Verschuif training niet naar later dan 22:00.
-    </div>`:"";
-}
-
-// ── STRETCH TAB ───────────────────────────────────────────────────────────────
-let stretchSelectedDay = dayIdx;
-
-function renderStretchDaySel(){
-  const el = document.getElementById("stretch-day-sel");
-  el.innerHTML = DAYS.map((d,i)=>{
-    const plan = STRETCH_SCHEDULE[i];
-    const typeColor = plan.type==="deep"?"#ff47a3":plan.type==="mobility"?"#ff6b35":plan.type==="recovery"?"#b47eff":"#47ffb4";
-    const isActive = i===stretchSelectedDay;
-    return `<button class="day-btn${isActive?" active-"+plan.type:""}" 
-      style="${isActive?"background:"+typeColor+";border-color:"+typeColor+";color:#0a0a0c;font-weight:700;":""}"
-      onclick="selectStretchDay(${i})">${d}</button>`;
-  }).join("");
-}
-
-function selectStretchDay(i){ stretchSelectedDay=i; renderStretchDaySel(); renderStretchDetail(); }
-
-function stretchTypeColor(t){ return t==="deep"?"#ff47a3":t==="mobility"?"#ff6b35":t==="recovery"?"#b47eff":"#47ffb4"; }
-function stretchTypeLabel(t){ return t==="deep"?"DIEP":t==="mobility"?"MOBILITEIT":t==="recovery"?"HERSTEL":"DAGELIJKS"; }
-
-function renderStretchDetail(){
-  const plan = STRETCH_SCHEDULE[stretchSelectedDay];
-  const col = stretchTypeColor(plan.type);
-  const lbl = stretchTypeLabel(plan.type);
-
-  document.getElementById("stretch-header").innerHTML=`
-    <div style="background:${col}10;border:1px solid ${col}30;border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
-      <div>
-        <div style="font-size:14px;font-weight:700;">${FULL_DAYS[stretchSelectedDay]}</div>
-        <div style="font-size:13px;color:${col};margin-top:2px;">${plan.label}</div>
-      </div>
-      <div style="text-align:right;">
-        <div class="badge" style="background:${col}20;color:${col};">${lbl}</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px;">⏱ ${plan.duration}</div>
-      </div>
-    </div>`;
-
-  document.getElementById("stretch-list").innerHTML=`
-    <div style="font-size:11px;letter-spacing:0.1em;color:rgba(255,255,255,0.35);margin-bottom:10px;">STRETCHES</div>
-    ${plan.stretches.map(s=>`
-      <div class="stretch-card" style="margin-bottom:8px;">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:6px;">
-          <span style="font-size:14px;font-weight:600;">${s.name}</span>
-          <span style="font-size:11px;color:${col};background:${col}15;padding:2px 8px;border-radius:4px;white-space:nowrap;">${s.dur}</span>
-        </div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5;">${s.cue}</div>
-      </div>`).join("")}`;
-
-  document.getElementById("technique-list").innerHTML = plan.technique.length?`
-    <div style="font-size:11px;letter-spacing:0.1em;color:rgba(255,255,255,0.35);margin-bottom:10px;">TRAPTECHNIEK</div>
-    ${plan.technique.map(t=>`
-      <div class="technique-card" style="margin-bottom:8px;">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:6px;">
-          <span style="font-size:14px;font-weight:600;">🥊 ${t.name}</span>
-          <span style="font-size:11px;color:#ff6b35;background:rgba(255,107,53,0.15);padding:2px 8px;border-radius:4px;white-space:nowrap;">${t.sets}</span>
-        </div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5;">${t.cue}</div>
-      </div>`).join("")}`:"";
-}
-
-// ── MMA TAB ───────────────────────────────────────────────────────────────────
-let mmaSection = "consistency";
-
-function renderMmaSectionBtns(){
-  document.getElementById("mma-sec-btns").innerHTML = Object.entries(MMA_MINDSET).map(([key,s])=>`
-    <button class="mma-sec-btn" onclick="selectMmaSection('${key}')"
-      style="${key===mmaSection?"background:"+s.color+";border-color:"+s.color+";color:#0a0a0c;font-weight:700;":""}"
-    >${s.icon} ${s.label}</button>`).join("");
-}
-
-function selectMmaSection(key){ mmaSection=key; renderMmaSectionBtns(); renderMmaDetail(); }
-
-function renderMmaDetail(){
-  const s = MMA_MINDSET[mmaSection];
-  const checks = loadChecks();
-  const todayK = getTodayKey();
-  const done = s.daily.filter((_,i)=>checks[`${todayK}_${mmaSection}_${i}`]).length;
-
-  document.getElementById("mma-header").innerHTML=`
-    <div style="background:${s.color}0d;border:1px solid ${s.color}30;border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
-      <div style="font-size:15px;font-weight:700;">${s.icon} ${s.label}</div>
-      <div style="font-size:12px;color:${s.color};">${done}/${s.daily.length} vandaag</div>
-    </div>`;
-
-  document.getElementById("mma-daily-list").innerHTML=`
-    <div style="font-size:11px;letter-spacing:0.1em;color:rgba(255,255,255,0.35);margin-bottom:10px;">✅ DAGELIJKS UITVOEREN</div>
-    ${s.daily.map((item,i)=>{
-      const key=`${todayK}_${mmaSection}_${i}`;
-      const isdone=!!checks[key];
-      return `<button class="check-btn" onclick="toggleMmaCheck('${key}')"
-        style="margin-bottom:6px;background:${isdone?s.color+"12":"rgba(255,255,255,0.03)"};border-color:${isdone?s.color+"40":"rgba(255,255,255,0.07)"};">
-        <div class="check-box" style="background:${isdone?s.color:"rgba(255,255,255,0.08)"};border:1.5px solid ${isdone?s.color:"rgba(255,255,255,0.2)"};">${isdone?"✓":""}</div>
-        <span style="font-size:13px;color:${isdone?"#fff":"rgba(255,255,255,0.6)"};font-weight:${isdone?600:400};">${item}</span>
-      </button>`;
-    }).join("")}`;
-
-  document.getElementById("mma-info-list").innerHTML=`
-    <div style="font-size:11px;letter-spacing:0.1em;color:rgba(255,255,255,0.35);margin-bottom:10px;">📌 PRINCIPES</div>
-    <div class="card" style="padding:12px 14px;">
-      ${s.info.map((item,i)=>`
-        <div style="font-size:13px;color:rgba(255,255,255,0.55);padding:5px 0;display:flex;gap:10px;${i<s.info.length-1?"border-bottom:1px solid rgba(255,255,255,0.04);":""}">
-          <span style="color:${s.color};flex-shrink:0;">—</span>${item}
-        </div>`).join("")}
-    </div>`;
-}
-
-function toggleMmaCheck(key){
-  const checks = loadChecks();
-  checks[key] = !checks[key];
-  saveChecks(checks);
-  renderMmaDetail();
-}
-
-// ── STATS ─────────────────────────────────────────────────────────────────────
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function tCol(t){return t==="gym"?"var(--g)":t==="mma"?"var(--or)":"var(--pu)";}
+function tGrad(t){return t==="gym"?"linear-gradient(135deg,#16a34a,#15803d)":t==="mma"?"linear-gradient(135deg,#ea580c,#c2410c)":"linear-gradient(135deg,#7c3aed,#6d28d9)";}
 function getLast7(){
   return Array.from({length:7}).map((_,i)=>{
-    const d=new Date(); d.setDate(d.getDate()-(6-i));
-    const key=d.toISOString().slice(0,10);
-    return {key, day:DAYS[(d.getDay()+6)%7], data:allData[key]||null};
+    const d=new Date();d.setDate(d.getDate()-(6-i));
+    const k=d.toISOString().slice(0,10);
+    return{key:k,day:DS[(d.getDay()+6)%7],data:allD[k]||null};
+  });
+}
+function getClProgress(key){
+  const cl=ldCL(); const plan=WP[DI]; const secs=CL[plan.t];
+  const total=secs.reduce((s,sec)=>s+sec.items.length,0);
+  const done=secs.reduce((s,sec)=>s+sec.items.filter(it=>cl[`${key}_${it.id}`]).length,0);
+  return{done,total,pct:total>0?Math.round(done/total*100):0};
+}
+function calcStreak(){
+  const cl=ldCL(); let streak=0; const d=new Date();
+  for(let i=0;i<60;i++){
+    const k=d.toISOString().slice(0,10);
+    const plan=WP[(d.getDay()+6)%7]; const secs=CL[plan.t];
+    const total=secs.reduce((s,sec)=>s+sec.items.length,0);
+    const done=secs.reduce((s,sec)=>s+sec.items.filter(it=>cl[`${k}_${it.id}`]).length,0);
+    if(done===total&&total>0)streak++;
+    else if(i>0)break;
+    d.setDate(d.getDate()-1);
+  }
+  return streak;
+}
+
+// ── ICON COLORS (nav) ─────────────────────────────────────────────────────────
+function setNavActive(id){
+  const map={
+    home:['ico-home-s'],
+    stretch:['ico-str-h','ico-str-b'],
+    training:['ico-tr-l','ico-tr-r','ico-tr-bar','ico-tr-ends'],
+    stats:['ico-st-1','ico-st-2','ico-st-3'],
+  };
+  const inactive='#94a3b8'; const active='#16a34a';
+  Object.entries(map).forEach(([page,els])=>{
+    els.forEach(elId=>{
+      const el=document.getElementById(elId);
+      if(el) el.setAttribute('stroke',page===id?active:inactive);
+    });
   });
 }
 
-function makeBarChart(containerId, getData, colorFn, labelFn){
-  const last7 = getLast7();
-  const el = document.getElementById(containerId);
-  el.innerHTML = last7.map(d=>{
-    const val = getData(d.data);
-    const pct = val;
-    const isToday = d.key===todayKey;
-    return `<div class="bar-col">
-      <div style="font-size:10px;color:rgba(255,255,255,0.4);height:14px;display:flex;align-items:flex-end;">${labelFn(d.data)}</div>
-      <div class="bar" style="height:${Math.max(pct*60,4)}px;background:${colorFn(d.data,isToday)};"></div>
-      <div style="font-size:10px;color:${isToday?colorFn(d.data,true):"rgba(255,255,255,0.35)"};">${d.day}</div>
-    </div>`;
-  }).join("");
-}
+// ── HOME ──────────────────────────────────────────────────────────────────────
+function renderHome(){
+  document.getElementById("h-date").textContent=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
 
-function renderStats(){
-  const last7 = getLast7();
-  makeBarChart("chart-sleep",
-    d=>d?.sleep_hours?Math.min(parseFloat(d.sleep_hours)/10,1):0,
-    (d,today)=>today?"#b47eff":d?.sleep_hours?(parseFloat(d.sleep_hours)>=7.5?"rgba(180,126,255,0.6)":"rgba(255,107,53,0.6)"):"rgba(255,255,255,0.08)",
-    d=>d?.sleep_hours?parseFloat(d.sleep_hours)+"u":"");
-  makeBarChart("chart-energy",
-    d=>d?.energy?(d.energy/5):0,
-    (d,today)=>today?"#e8ff47":d?.energy?"rgba(232,255,71,0.5)":"rgba(255,255,255,0.08)",
-    d=>d?.energy?d.energy+"/5":"");
-  makeBarChart("chart-reading",
-    d=>d?.reading_minutes?Math.min(parseInt(d.reading_minutes)/60,1):0,
-    (d,today)=>today?"#47ffb4":d?.reading_minutes?(parseInt(d.reading_minutes)>=30?"rgba(71,255,180,0.6)":"rgba(255,107,53,0.5)"):"rgba(255,255,255,0.08)",
-    d=>d?.reading_minutes?parseInt(d.reading_minutes)+"m":"");
-  const totalReading = last7.filter(d=>d.data?.reading_minutes).reduce((s,d)=>s+parseInt(d.data.reading_minutes||0),0);
-  document.getElementById("reading-total").textContent=`Totaal: ${totalReading} min • Doel: 210 min/week`;
-  document.getElementById("weight-list").innerHTML = last7.map(d=>`
-    <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:8px 12px;min-width:60px;text-align:center;">
-      <div style="font-size:13px;font-weight:600;color:${d.data?.weight?"#47e8d4":"rgba(255,255,255,0.2)"};">${d.data?.weight?d.data.weight+"kg":"—"}</div>
-      <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px;">${d.day}</div>
-    </div>`).join("");
-}
+  const inner=document.getElementById("home-inner");
+  const vh=window.innerHeight;
+  const hdrH=document.querySelector("#page-home .hdr").offsetHeight||110;
+  const navH=68;
+  const avail=vh-hdrH-navH-16; // available px for inner content
+  const plan=WP[DI];
+  const cl=ldCL();
+  const secs=CL[plan.t];
+  const{done,total,pct}=getClProgress(TK);
+  const streak=calcStreak();
 
-// ── GOALS ─────────────────────────────────────────────────────────────────────
-function renderGoals(){
-  document.getElementById("goals-list").innerHTML = GOALS.map(g=>`
-    <div class="card" style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
-      <div style="width:44px;height:44px;border-radius:10px;background:${g.color}18;border:1px solid ${g.color}40;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">${g.icon}</div>
+  // Build inner HTML
+  let html="";
+
+  // ── ROW 1: Week cal (always shown)
+  html+=`<div style="padding-top:14px;">
+    <div class="slbl" style="margin-bottom:8px;">THIS WEEK</div>
+    <div class="wcal" id="h-wcal"></div>
+  </div>`;
+
+  // ── ROW 2: Streak + Ring
+  html+=`<div class="row" style="gap:10px;">
+    <div class="streak-card" style="flex:1;">
       <div>
-        <div style="font-size:14px;font-weight:600;">${g.label}</div>
-        <div style="font-size:12px;color:${g.color};margin-top:3px;">${g.target}</div>
+        <div style="font-size:10px;font-weight:700;opacity:0.8;letter-spacing:0.06em;">STREAK</div>
+        <div style="font-size:30px;font-weight:900;line-height:1;">${streak}</div>
+        <div style="font-size:10px;opacity:0.75;">days in a row</div>
       </div>
-    </div>`).join("");
-  document.getElementById("routine-list").innerHTML = ROUTINE.map(item=>`
-    <div style="font-size:13px;color:rgba(255,255,255,0.7);padding:5px 0;display:flex;gap:8px;">
-      <span style="color:#e8ff47;">—</span>${item}
-    </div>`).join("");
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M12 2C8 2 5 5.5 6 9.5C7 13 10 14.5 10 17H14C14 14.5 17 13 18 9.5C19 5.5 16 2 12 2Z" fill="rgba(255,255,255,0.9)"/><path d="M10 17H14V19C14 19.55 13.55 20 13 20H11C10.45 20 10 19.55 10 19V17Z" fill="rgba(255,255,255,0.7)"/></svg>
+    </div>
+    <div class="card" style="flex:1;padding:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;">
+      <div class="prog-wrap">
+        <svg width="72" height="72" viewBox="0 0 72 72">
+          <circle cx="36" cy="36" r="28" fill="none" stroke="var(--bdr)" stroke-width="7"/>
+          <circle cx="36" cy="36" r="28" fill="none" stroke="var(--g)" stroke-width="7"
+            stroke-linecap="round" stroke-dasharray="176" id="prog-c" stroke-dashoffset="${Math.round(176-(176*pct/100))}"/>
+        </svg>
+        <div class="prog-lbl">
+          <div style="font-size:16px;font-weight:900;color:var(--g);">${pct}%</div>
+        </div>
+      </div>
+      <div style="font-size:10px;font-weight:700;color:var(--t3);">${done}/${total} DONE</div>
+    </div>
+  </div>`;
+
+  // ── ROW 3: Activity card
+  html+=`<div class="act-card" style="background:${tGrad(plan.t)};flex-shrink:0;">
+    <div style="font-size:10px;font-weight:800;opacity:0.8;letter-spacing:0.08em;margin-bottom:4px;">TODAY'S FOCUS</div>
+    <div style="font-size:20px;font-weight:900;margin-bottom:3px;">${plan.i} ${plan.f}</div>
+    <div style="font-size:12px;opacity:0.85;">${plan.dt}</div>
+    ${plan.fx?'<span class="pill" style="margin-top:10px;background:rgba(255,255,255,0.22);color:white;">⚡ Flexjob possible</span>':''}
+  </div>`;
+
+  // ── ROW 4: Checklist — ALL sections always visible
+  html+=`<div style="flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;" id="cl-scroll">
+    <div class="row between" style="margin-bottom:8px;">
+      <div class="slbl">DAILY CHECKLIST</div>
+    </div>
+    <div id="h-cl-secs" style="display:flex;flex-direction:column;gap:8px;"></div>
+    <div style="height:8px;"></div>
+  </div>`;
+
+  inner.innerHTML=html;
+
+  // Week cal
+  const wcal=document.getElementById("h-wcal");
+  for(let i=0;i<7;i++){
+    const d=new Date(); const diff=i-DI; d.setDate(d.getDate()+diff);
+    const k=d.toISOString().slice(0,10);
+    const isT=i===DI;
+    const p2=WP[i]; const s2=CL[p2.t];
+    const tot2=s2.reduce((s,sec)=>s+sec.items.length,0);
+    const dn2=s2.reduce((s,sec)=>s+sec.items.filter(it=>cl[`${k}_${it.id}`]).length,0);
+    const hasD=dn2>0&&!isT;
+    const div=document.createElement("div");
+    div.className="wday"+(isT?" today":hasD?" has-data":"");
+    div.innerHTML=`<div class="wday-lbl">${DS[i]}</div><div class="wday-num">${d.getDate()}</div><div class="wday-dot" style="background:${isT?"rgba(255,255,255,0.5)":hasD?"var(--g)":"var(--bdr)"}"></div>`;
+    wcal.appendChild(div);
+  }
+
+  // Checklist sections
+  const clSecs=document.getElementById("h-cl-secs");
+  secs.forEach(sec=>{
+    const doneC=sec.items.filter(it=>cl[`${TK}_${it.id}`]).length;
+    const div=document.createElement("div");
+    div.className="cl-sec";
+    div.innerHTML=`<div class="cl-hdr" style="background:${sec.col};">
+      <div class="cl-hdr-t">${sec.s}</div>
+      <div class="cl-hdr-c">${doneC}/${sec.items.length}</div>
+    </div><div class="cl-body">${sec.items.map(it=>{
+      const d2=!!cl[`${TK}_${it.id}`];
+      return `<button class="cl-item" onclick="toggleCL('${it.id}')">
+        <div class="cl-box${d2?" done"}">${d2?"✓":""}</div>
+        <div style="flex:1;">
+          <div class="cl-txt${d2?" done"}">${it.l}</div>
+          ${it.sub?`<div class="cl-sub">${it.sub}</div>`:""}
+        </div>
+      </button>`;
+    }).join("")}</div>`;
+    clSecs.appendChild(div);
+  });
 }
 
-// ── TABS ──────────────────────────────────────────────────────────────────────
-function showTab(id){
-  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
-  document.getElementById("tab-"+id).classList.add("active");
-  event.currentTarget.classList.add("active");
+function toggleCL(id){
+  const cl=ldCL(); cl[`${TK}_${id}`]=!cl[`${TK}_${id}`]; svCL(cl); renderHome();
+}
+
+// ── STRETCH ───────────────────────────────────────────────────────────────────
+let strD=DI; let activeTimer=null;
+function sTC(t){return t==="deep"?"var(--re)":t==="mobility"?"var(--or)":t==="recovery"?"var(--pu)":"var(--g)";}
+function sTBg(t){return t==="deep"?"var(--rel)":t==="mobility"?"var(--orl)":t==="recovery"?"var(--pul)":"var(--gl)";}
+function sTL(t){return t==="deep"?"DEEP":t==="mobility"?"MOBILITY":t==="recovery"?"RECOVERY":"DAILY";}
+function parseSecs(d){const m=d.match(/(\d+)/);return m?parseInt(m[1]):60;}
+
+function renderStretch(){
+  const pills=document.getElementById("str-pills");
+  pills.innerHTML=SS.map((p,i)=>{
+    const a=i===strD;
+    return `<button style="flex-shrink:0;padding:7px 13px;border-radius:100px;border:1.5px solid ${a?p.c:"var(--bdr)"};background:${a?p.c:"white"};color:${a?"white":"var(--t2)"};font-size:11px;font-weight:700;cursor:pointer;font-family:var(--fn);transition:all 0.15s;" onclick="selSD(${i})">${DS[i]}</button>`;
+  }).join("");
+  const p=SS[strD]; const col=p.c; const bg=sTBg(p.t);
+  document.getElementById("str-header").innerHTML=`
+    <div style="background:${bg};border-radius:var(--r);padding:16px 18px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:16px;font-weight:900;">${DF[strD]}</div>
+        <div style="font-size:13px;font-weight:700;color:${col};margin-top:2px;">${p.l}</div>
+      </div>
+      <div style="text-align:right;">
+        <span class="pill" style="background:${bg};color:${col};border:1.5px solid ${col}44;">${sTL(p.t)}</span>
+        <div style="font-size:11px;color:var(--t3);margin-top:4px;font-weight:600;">⏱ ${p.d}</div>
+      </div>
+    </div>`;
+  document.getElementById("str-exercises").innerHTML=`
+    <div class="slbl" style="margin-bottom:8px;">STRETCHES</div>
+    ${p.s.map((s,i)=>{
+      const sc=parseSecs(s.d);
+      return `<div class="str-card" id="sc-${i}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;">
+          <div style="font-size:14px;font-weight:800;">${s.n}</div>
+          <span class="pill" style="background:${bg};color:${col};flex-shrink:0;">${s.d}</span>
+        </div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.5;margin-bottom:10px;">${s.c}</div>
+        <button class="timer-btn" id="tb-${i}" onclick="startTimer(${sc},'tb-${i}','sc-${i}',this)"
+          style="background:${col};color:white;">▶ Start timer</button>
+      </div>`;
+    }).join("")}`;
+  document.getElementById("str-technique").innerHTML=p.tech&&p.tech.length?`
+    <div class="slbl" style="margin-bottom:8px;">KICK TECHNIQUE</div>
+    ${p.tech.map(t=>`
+      <div class="str-card" style="border-color:var(--orm);background:var(--orl);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;">
+          <div style="font-size:14px;font-weight:800;">🥊 ${t.n}</div>
+          <span class="pill" style="background:white;color:var(--or);border:1.5px solid var(--orm);flex-shrink:0;">${t.s}</span>
+        </div>
+        <div style="font-size:12px;color:#9a3412;line-height:1.5;">${t.c}</div>
+      </div>`).join("")}`:"";
+}
+function selSD(i){strD=i;renderStretch();}
+function startTimer(total,btnId,cardId,btn){
+  if(activeTimer){clearInterval(activeTimer.iv);const ob=document.getElementById(activeTimer.bid);if(ob){ob.textContent="▶ Start timer";ob.style.background=activeTimer.col;}}
+  const p=SS[strD];
+  btn.style.background="var(--re)"; let rem=total;
+  activeTimer={iv:null,bid:btnId,col:p.c};
+  activeTimer.iv=setInterval(()=>{
+    rem--;
+    const m=Math.floor(rem/60),s=rem%60;
+    btn.textContent=`⏱ ${m}:${s.toString().padStart(2,"0")}`;
+    if(rem<=0){
+      clearInterval(activeTimer.iv);activeTimer=null;
+      btn.textContent="✓ Done!";btn.style.background="var(--g)";
+      const card=document.getElementById(cardId);
+      if(card)card.style.borderColor="var(--gm)";
+    }
+  },1000);
+  btn.textContent=`⏱ ${Math.floor(total/60)}:${(total%60).toString().padStart(2,"0")}`;
+}
+
+// ── TRAINING ──────────────────────────────────────────────────────────────────
+let kbSec="comfort";
+function renderTraining(){
+  const s=KB[kbSec];
+  document.getElementById("tr-sec-btns").innerHTML=Object.entries(KB).map(([k,v])=>
+    `<button style="padding:8px 14px;border-radius:100px;border:1.5px solid ${k===kbSec?v.col:"var(--bdr)"};background:${k===kbSec?v.col:"white"};color:${k===kbSec?"white":"var(--t2)"};font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fn);transition:all 0.15s;" onclick="selKB('${k}')">${v.l}</button>`).join("");
+  const kbc=ldKB(); const done=s.daily.filter((_,i)=>kbc[`${TK}_${kbSec}_${i}`]).length;
+  document.getElementById("tr-header").innerHTML=`<div class="card cp row between"><div style="font-size:16px;font-weight:900;">${s.l}</div><span class="pill" style="background:${s.col}18;color:${s.col};">${done}/${s.daily.length} ✓</span></div>`;
+  document.getElementById("tr-checklist").innerHTML=`<div class="slbl" style="margin-bottom:4px;">DAILY ACTIONS</div>${s.daily.map((item,i)=>{
+    const k=`${TK}_${kbSec}_${i}`;const d=!!kbc[k];
+    return `<button class="cl-item" onclick="tKB('${k}')">
+      <div class="cl-box${d?" done"}">${d?"✓":""}</div>
+      <span style="font-size:13px;font-weight:${d?700:500};color:${d?"var(--t)":"var(--t2)"};">${item}</span>
+    </button>`;}).join("")}`;
+  document.getElementById("tr-principles").innerHTML=`<div class="slbl" style="margin-bottom:4px;">FOCUS POINTS</div>${s.info.map((item,i)=>`
+    <div style="font-size:13px;color:var(--t2);padding:8px 0;display:flex;gap:10px;${i<s.info.length-1?"border-bottom:1px solid var(--bdr);":""}">
+      <span style="color:${s.col};font-weight:800;flex-shrink:0;">—</span>${item}
+    </div>`).join("")}`;
+}
+function selKB(k){kbSec=k;renderTraining();}
+function tKB(key){const c=ldKB();c[key]=!c[key];svKB(c);renderTraining();}
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function buildRat(id,field,color){
+  const el=document.getElementById(id);if(!el)return;el.innerHTML="";
+  for(let i=1;i<=5;i++){
+    const b=document.createElement("button");b.className="rdot";
+    const a=i<=tLog[field];b.style.background=a?color:"white";b.style.borderColor=a?color:"var(--bdr)";
+    const v=i;b.onclick=()=>{tLog[field]=v;buildRat(id,field,color);};
+    el.appendChild(b);
+  }
+}
+function renderStats(){
+  document.getElementById("s-sleep").value=tLog.sleep_hours||"";
+  document.getElementById("s-reading").value=tLog.reading_minutes||"";
+  document.getElementById("s-notes").value=tLog.notes||"";
+  buildRat("s-energy-rat","energy","var(--g)");
+  buildRat("s-mood-rat","mood","var(--pu)");
+  const l7=getLast7();
+  function mkC(id,gv,cf,lf){
+    const el=document.getElementById(id);if(!el)return;
+    el.innerHTML=l7.map(d=>{
+      const v=gv(d.data);const it=d.key===TK;
+      return `<div class="bar-col"><div class="bar-v">${lf(d.data)}</div><div class="bar" style="height:${Math.max(v*60,3)}px;background:${cf(d.data,it)};"></div><div class="bar-d" style="color:${it?"var(--g)":"var(--t3)"};">${d.day}</div></div>`;
+    }).join("");
+  }
+  mkC("chart-sleep",d=>d?.sleep_hours?Math.min(parseFloat(d.sleep_hours)/10,1):0,(d,t)=>t?"var(--pu)":d?.sleep_hours?(parseFloat(d.sleep_hours)>=7.5?"#a78bfa":"#fca5a5"):"var(--bdr)",d=>d?.sleep_hours?parseFloat(d.sleep_hours)+"h":"");
+  mkC("chart-energy",d=>d?.energy?(d.energy/5):0,(d,t)=>t?"var(--g)":d?.energy?"#86efac":"var(--bdr)",d=>d?.energy?d.energy+"/5":"");
+  mkC("chart-reading",d=>d?.reading_minutes?Math.min(parseInt(d.reading_minutes)/60,1):0,(d,t)=>t?"var(--am)":d?.reading_minutes?(parseInt(d.reading_minutes)>=30?"#fbbf24":"#fca5a5"):"var(--bdr)",d=>d?.reading_minutes?parseInt(d.reading_minutes)+"m":"");
+  const tr=l7.filter(d=>d.data?.reading_minutes).reduce((s,d)=>s+parseInt(d.data.reading_minutes||0),0);
+  document.getElementById("reading-total").textContent=`Total: ${tr} min · Goal: 210 min/week`;
+  const chips=document.getElementById("weight-chips");chips.innerHTML="";
+  for(let i=0;i<8;i++){
+    const d=new Date();d.setDate(d.getDate()-(i*7));
+    const k=d.toISOString().slice(0,10);const w=allD[k]?.weight;
+    const div=document.createElement("div");
+    div.style.cssText=`background:${w?"var(--gl)":"#f1f5f9"};border:1.5px solid ${w?"var(--gm)":"var(--bdr)"};border-radius:var(--rx);padding:8px 10px;text-align:center;min-width:54px;`;
+    div.innerHTML=`<div style="font-size:13px;font-weight:800;color:${w?"var(--g)":"var(--t3)"};">${w?w+"kg":"—"}</div><div style="font-size:9px;color:var(--t3);font-weight:700;margin-top:2px;">${d.toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</div>`;
+    chips.appendChild(div);
+  }
+  document.getElementById("goals-list").innerHTML=GOALS.map(g=>`
+    <div class="goal-row">
+      <div class="goal-ico" style="background:${g.bg};">${g.i}</div>
+      <div><div style="font-size:14px;font-weight:800;">${g.l}</div><div style="font-size:12px;color:${g.col};font-weight:700;margin-top:2px;">${g.t}</div></div>
+    </div>`).join("");
+}
+function saveLog(){
+  tLog.sleep_hours=document.getElementById("s-sleep").value;
+  tLog.reading_minutes=document.getElementById("s-reading").value;
+  tLog.notes=document.getElementById("s-notes").value;
+  allD[TK]={...tLog};sv(allD);
+  const btn=event.currentTarget;btn.textContent="✓ Saved!";btn.style.background="var(--g2)";
+  setTimeout(()=>{btn.textContent="Save day ✓";btn.style.background="";},2000);
+  renderStats();renderHome();
+}
+function saveWeight(){
+  const w=document.getElementById("s-weight").value;if(!w)return;
+  if(!allD[TK])allD[TK]={};allD[TK].weight=w;sv(allD);
+  const btn=event.currentTarget;btn.textContent="✓ Saved!";
+  setTimeout(()=>{btn.textContent="Save weight";},2000);
+  renderStats();
+}
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+const PAGES=["home","stretch","training","stats"];
+function showPage(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".ni").forEach(b=>b.classList.remove("active"));
+  document.getElementById("page-"+id).classList.add("active");
+  PAGES.forEach((p,i)=>{if(p===id)document.querySelectorAll(".ni")[i].classList.add("active");});
+  document.getElementById("content").scrollTop=0;
+  setNavActive(id);
+  if(id==="stretch")renderStretch();
+  if(id==="training")renderTraining();
+  if(id==="stats")renderStats();
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-renderHeader();
-renderQuickStats();
-initTodayForm();
-renderWeekDaySel();
-renderWeekDetail();
-renderStretchDaySel();
-renderStretchDetail();
-renderMmaSectionBtns();
-renderMmaDetail();
+setNavActive("home");
+renderHome();
+renderStretch();
+renderTraining();
 renderStats();
-renderGoals();
+window.addEventListener("resize",()=>{ if(document.getElementById("page-home").classList.contains("active")) renderHome(); });
 </script>
 </body>
 </html>
