@@ -24,30 +24,30 @@ button,input,textarea,select{font-family:var(--fn);}
 .ni-lbl{font-size:10px;font-weight:700;color:#555;letter-spacing:0.02em;transition:color 0.2s;}
 .ni.active svg{transform:scale(1.1);}
 .page{display:none;}
-.page.active{display:block;animation:fu 0.2s ease;}
+.page.active{display:block;animation:fu 0.22s ease;}
 @keyframes fu{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 .hdr{padding:52px 20px 14px;}
 .card{background:var(--card);border-radius:var(--r);border:1px solid var(--bdr);}
 .cp{padding:18px;}
-.wcal{display:flex;gap:5px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;}
-.wcal::-webkit-scrollbar{display:none;}
-.wday{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 10px;border-radius:12px;background:var(--card);border:1px solid var(--bdr);min-width:48px;}
+/* Week strip - 7 equal columns, swipeable */
+.wcal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;touch-action:pan-y;}
+.wday{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 2px;border-radius:10px;background:var(--card);border:1px solid var(--bdr);cursor:pointer;transition:all 0.15s;-webkit-user-select:none;user-select:none;}
 .wday-today{border-color:transparent;}
-.wday-lbl{font-size:10px;font-weight:600;color:var(--t3);}
-.wday-num{font-size:17px;font-weight:800;color:var(--t2);}
+.wday-sel{border-width:2px;}
+.wday-lbl{font-size:9px;font-weight:700;color:var(--t3);}
+.wday-num{font-size:15px;font-weight:800;color:var(--t2);}
 .ring-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;}
 .ring-wrap svg{transform:rotate(-90deg);}
 .ring-lbl{position:absolute;text-align:center;}
-.mcol{background:var(--card);border-radius:var(--r);border:1px solid var(--bdr);padding:16px;display:flex;flex-direction:column;align-items:center;gap:8px;}
 .cl-sec{border-radius:var(--r);overflow:hidden;border:1px solid var(--bdr);margin-bottom:10px;}
 .cl-hdr{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;background:var(--card2);}
 .cl-hdr-t{font-size:12px;font-weight:800;color:var(--t);}
 .cl-cnt{font-size:11px;font-weight:700;color:var(--t3);background:var(--bdr);padding:2px 8px;border-radius:100px;}
 .cl-cnt.all{background:var(--g);color:#0d0d0d;}
-.cl-item{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--bdr);cursor:pointer;border-left:none;border-right:none;border-top:none;width:100%;text-align:left;}
+.cl-item{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--bdr);cursor:pointer;border-left:none;border-right:none;border-top:none;width:100%;text-align:left;transition:background 0.1s;}
 .cl-item:last-child{border-bottom:none;}
 .cl-item:active{background:var(--card2);}
-.cl-box{width:21px;height:21px;border-radius:6px;border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:800;color:#0d0d0d;}
+.cl-box{width:21px;height:21px;border-radius:6px;border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:800;color:#0d0d0d;transition:transform 0.15s;}
 .cl-txt{font-size:13px;font-weight:600;color:var(--t2);flex:1;}
 .cl-txt.done{color:var(--t3);text-decoration:line-through;}
 .cl-sub{font-size:11px;color:var(--t3);margin-top:2px;}
@@ -61,9 +61,9 @@ button,input,textarea,select{font-family:var(--fn);}
 .inp:focus{outline:none;border-color:var(--g);}
 .inp-sm{width:90px;}
 .sbtn{background:var(--g);color:#0d0d0d;border:none;border-radius:var(--rs);padding:14px;font-size:14px;font-weight:800;cursor:pointer;width:100%;letter-spacing:0.02em;}
-.sbtn:active{opacity:0.85;}
+.sbtn:active{opacity:0.85;transform:scale(0.98);}
 .rat{display:flex;gap:6px;}
-.rdot{width:32px;height:32px;border-radius:8px;border:1.5px solid var(--bdr);background:var(--card2);cursor:pointer;}
+.rdot{width:32px;height:32px;border-radius:8px;border:1.5px solid var(--bdr);background:var(--card2);cursor:pointer;transition:all 0.15s;}
 .bw{display:flex;align-items:flex-end;gap:4px;height:68px;}
 .bc{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
 .bar{width:100%;border-radius:4px;min-height:3px;}
@@ -71,7 +71,7 @@ button,input,textarea,select{font-family:var(--fn);}
 .bd{font-size:9px;font-weight:700;}
 .row{display:flex;align-items:center;}
 .between{justify-content:space-between;}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.g-metrics{display:flex;flex-direction:column;gap:10px;}
 .slbl{font-size:11px;font-weight:800;color:var(--t3);letter-spacing:0.08em;text-transform:uppercase;}
 .fx{display:flex;flex-direction:column;gap:14px;}
 .px{padding-left:20px;padding-right:20px;}
@@ -80,30 +80,49 @@ button,input,textarea,select{font-family:var(--fn);}
 .modal-box::-webkit-scrollbar{display:none;}
 .icon-grid{display:flex;gap:8px;flex-wrap:wrap;}
 .color-grid{display:flex;gap:8px;flex-wrap:wrap;}
+#confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;overflow:hidden;}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(100vh) rotate(720deg);opacity:0;}}
+.page-slide-left{animation:slideL 0.25s ease!important;}
+.page-slide-right{animation:slideR 0.25s ease!important;}
+@keyframes slideL{from{opacity:0;transform:translateX(36px);}to{opacity:1;transform:translateX(0);}}
+@keyframes slideR{from{opacity:0;transform:translateX(-36px);}to{opacity:1;transform:translateX(0);}}
 </style>
 </head>
 <body>
+<div id="confetti-container"></div>
 <div id="content">
 
-<!-- HOME -->
 <div id="page-home" class="page active">
   <div class="hdr px">
-    <div class="row between">
+    <div class="row between" style="margin-bottom:2px;">
       <div>
         <div style="font-size:12px;color:var(--t3);font-weight:600;" id="h-date"></div>
         <div style="font-size:25px;font-weight:900;margin-top:2px;letter-spacing:-0.02em;">Hey Jan</div>
       </div>
-      <button onclick="showSettings()" style="width:40px;height:40px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;color:#0d0d0d;font-weight:900;font-size:15px;border:none;cursor:pointer;">J</button>
+      <button onclick="showSettings()" style="width:40px;height:40px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;color:#0d0d0d;font-weight:900;font-size:15px;border:none;cursor:pointer;transition:transform 0.15s;" ontouchstart="this.style.transform='scale(0.92)'" ontouchend="this.style.transform='scale(1)'">J</button>
     </div>
   </div>
   <div class="px fx" style="padding-bottom:8px;">
-    <div><div class="slbl" style="margin-bottom:10px;">THIS WEEK</div><div class="wcal" id="h-wcal"></div></div>
+    <!-- Week strip -->
+    <div>
+      <div class="row between" style="margin-bottom:8px;">
+        <div class="slbl">THIS WEEK</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:11px;font-weight:700;" id="h-week-label"></span>
+          <button id="h-today-btn" onclick="goToToday()" style="display:none;background:var(--g);color:#0d0d0d;border:none;border-radius:100px;padding:3px 10px;font-size:10px;font-weight:800;cursor:pointer;">Today</button>
+        </div>
+      </div>
+      <div class="wcal" id="h-wcal"></div>
+    </div>
+    <!-- Hero -->
     <div class="card" style="padding:18px 20px;" id="h-hero">
-      <div style="font-size:11px;font-weight:700;opacity:0.55;letter-spacing:0.08em;margin-bottom:4px;">TODAY</div>
+      <div style="font-size:11px;font-weight:700;opacity:0.55;letter-spacing:0.08em;margin-bottom:4px;">FOCUS</div>
       <div style="font-size:24px;font-weight:900;margin-bottom:3px;" id="h-focus"></div>
       <div style="font-size:12px;color:var(--t2);" id="h-detail"></div>
     </div>
-    <div class="g2" id="h-metrics"></div>
+    <!-- Metrics -->
+    <div class="g-metrics" id="h-metrics"></div>
+    <!-- Checklist -->
     <div>
       <div class="row between" style="margin-bottom:12px;">
         <div class="slbl">DAILY CHECKLIST</div>
@@ -114,7 +133,6 @@ button,input,textarea,select{font-family:var(--fn);}
   </div>
 </div>
 
-<!-- TRAINING -->
 <div id="page-training" class="page">
   <div class="hdr px">
     <div style="font-size:24px;font-weight:900;letter-spacing:-0.02em;">Training</div>
@@ -136,7 +154,6 @@ button,input,textarea,select{font-family:var(--fn);}
   </div>
 </div>
 
-<!-- STATS -->
 <div id="page-stats" class="page">
   <div class="hdr px">
     <div style="font-size:24px;font-weight:900;letter-spacing:-0.02em;">Stats</div>
@@ -172,7 +189,7 @@ button,input,textarea,select{font-family:var(--fn);}
 </div>
 
 <nav id="bnav">
-  <button class="ni active" onclick="showPage('home')">
+  <button class="ni active" onclick="showPage('home','right')">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 10.5L12 3L21 10.5V20C21 20.55 20.55 21 20 21H15V15H9V21H4C3.45 21 3 20.55 3 20V10.5Z" stroke="#a8ff3e" stroke-width="1.8" fill="none" stroke-linejoin="round" id="ni-h"/></svg>
     <div class="ni-lbl" style="color:#a8ff3e;">Home</div>
   </button>
@@ -186,7 +203,7 @@ button,input,textarea,select{font-family:var(--fn);}
     </svg>
     <div class="ni-lbl">Training</div>
   </button>
-  <button class="ni" onclick="showPage('stats')">
+  <button class="ni" onclick="showPage('stats','left')">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
       <rect x="3" y="14" width="4" height="7" rx="1.5" stroke="#555" stroke-width="1.8" fill="none" id="ni-s1"/>
       <rect x="10" y="9" width="4" height="12" rx="1.5" stroke="#555" stroke-width="1.8" fill="none" id="ni-s2"/>
@@ -196,7 +213,6 @@ button,input,textarea,select{font-family:var(--fn);}
   </button>
 </nav>
 
-<!-- SETTINGS MODAL -->
 <div class="modal" id="settings-modal">
   <div class="modal-box">
     <div class="row between" style="margin-bottom:18px;">
@@ -208,7 +224,6 @@ button,input,textarea,select{font-family:var(--fn);}
   </div>
 </div>
 
-<!-- SPORT EDIT MODAL -->
 <div class="modal" id="sport-edit-modal">
   <div class="modal-box">
     <div class="row between" style="margin-bottom:18px;">
@@ -216,20 +231,9 @@ button,input,textarea,select{font-family:var(--fn);}
       <button onclick="closeSportEdit()" style="background:none;border:none;color:var(--t2);font-size:24px;cursor:pointer;line-height:1;">&#215;</button>
     </div>
     <div class="fx" style="gap:14px;">
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;">Name</div>
-        <input class="inp" id="sp-name" type="text" placeholder="Sport name" maxlength="20"/>
-      </div>
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:10px;">Color</div>
-        <div class="color-grid" id="sp-color-picker"></div>
-        <input type="hidden" id="sp-sel-color" value="#a8ff3e"/>
-      </div>
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:10px;">Icon</div>
-        <div class="icon-grid" id="sp-icon-picker"></div>
-        <input type="hidden" id="sp-sel-icon" value="S"/>
-      </div>
+      <div><div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;">Name</div><input class="inp" id="sp-name" type="text" placeholder="Sport name" maxlength="20"/></div>
+      <div><div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:10px;">Color</div><div class="color-grid" id="sp-color-picker"></div><input type="hidden" id="sp-sel-color" value="#a8ff3e"/></div>
+      <div><div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:10px;">Icon</div><div class="icon-grid" id="sp-icon-picker"></div><input type="hidden" id="sp-sel-icon" value="S"/></div>
       <div style="display:flex;gap:10px;padding-top:4px;">
         <button onclick="closeSportEdit()" style="flex:1;padding:13px;border-radius:var(--rs);background:var(--card2);border:1px solid var(--bdr);color:var(--t2);font-size:14px;font-weight:700;cursor:pointer;">Cancel</button>
         <button onclick="saveSportEdit()" class="sbtn" style="flex:2;">Save</button>
@@ -238,30 +242,16 @@ button,input,textarea,select{font-family:var(--fn);}
   </div>
 </div>
 
-<!-- ADD TASK MODAL -->
 <div class="modal" id="task-add-modal">
   <div class="modal-box">
     <div class="row between" style="margin-bottom:18px;">
-      <div>
-        <div style="font-size:18px;font-weight:900;">Add task</div>
-        <div style="font-size:13px;font-weight:700;margin-top:2px;" id="task-sport-name"></div>
-      </div>
+      <div><div style="font-size:18px;font-weight:900;">Add task</div><div style="font-size:13px;font-weight:700;margin-top:2px;" id="task-sport-name"></div></div>
       <button onclick="closeAddTask()" style="background:none;border:none;color:var(--t2);font-size:24px;cursor:pointer;line-height:1;">&#215;</button>
     </div>
     <div class="fx" style="gap:13px;">
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;">Task name</div>
-        <input class="inp" id="task-label" type="text" placeholder="e.g. Bench press 4x8"/>
-      </div>
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;">Note (optional)</div>
-        <input class="inp" id="task-sub" type="text" placeholder="e.g. Focus on form"/>
-      </div>
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:10px;">Section</div>
-        <div style="display:flex;gap:7px;flex-wrap:wrap;" id="task-sec-picker"></div>
-        <input type="hidden" id="task-sec-val" value="Morning"/>
-      </div>
+      <div><div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;">Task name</div><input class="inp" id="task-label" type="text" placeholder="e.g. Bench press 4x8"/></div>
+      <div><div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:6px;">Note (optional)</div><input class="inp" id="task-sub" type="text" placeholder="e.g. Focus on form"/></div>
+      <div><div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:10px;">Section</div><div style="display:flex;gap:7px;flex-wrap:wrap;" id="task-sec-picker"></div><input type="hidden" id="task-sec-val" value="Morning"/></div>
       <div style="display:flex;gap:10px;padding-top:4px;">
         <button onclick="closeAddTask()" style="flex:1;padding:13px;border-radius:var(--rs);background:var(--card2);border:1px solid var(--bdr);color:var(--t2);font-size:14px;font-weight:700;cursor:pointer;">Cancel</button>
         <button onclick="saveTask()" class="sbtn" style="flex:2;">Add task</button>
@@ -378,6 +368,66 @@ var allD=ld(SK);
 var TK=new Date().toISOString().slice(0,10);
 var DI=(new Date().getDay()+6)%7;
 var tLog=Object.assign({energy:3,mood:3,sleep:"",reading:"",notes:""},allD[TK]||{});
+
+// Week navigation
+var weekOffset = 0; // 0 = current week, -1 = last week, +1 = next week
+var selectedDay = null; // null = today, or a date string like "2024-01-15"
+
+function getViewDateKey() {
+    if (selectedDay) return selectedDay;
+    return TK;
+}
+
+function getViewDayIndex() {
+    if (selectedDay) {
+        var d = new Date(selectedDay + 'T12:00:00');
+        return (d.getDay() + 6) % 7;
+    }
+    return DI;
+}
+
+function haptic(style) {
+    if (navigator.vibrate) {
+        if (style === 'light') navigator.vibrate(10);
+        else if (style === 'medium') navigator.vibrate(20);
+        else if (style === 'success') navigator.vibrate([10, 30, 10]);
+    }
+    if (window.navigator && window.navigator.vibrate) return;
+    // iOS haptic via AudioContext trick
+    try {
+        if (window._hapticCtx) {
+            var o = window._hapticCtx.createOscillator();
+            var g = window._hapticCtx.createGain();
+            o.connect(g); g.connect(window._hapticCtx.destination);
+            g.gain.setValueAtTime(0.3, window._hapticCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, window._hapticCtx.currentTime + 0.05);
+            o.start(window._hapticCtx.currentTime);
+            o.stop(window._hapticCtx.currentTime + 0.05);
+        }
+    } catch(e) {}
+}
+
+function confetti() {
+    var container = document.getElementById('confetti-container');
+    if (!container) return;
+    container.innerHTML = '';
+    var colors = ['#a8ff3e','#ff9800','#b388ff','#ff5252','#448aff','#ffd600'];
+    for (var i = 0; i < 60; i++) {
+        var p = document.createElement('div');
+        var color = colors[Math.floor(Math.random() * colors.length)];
+        var size = Math.random() * 8 + 4;
+        var x = Math.random() * 100;
+        var delay = Math.random() * 0.5;
+        var duration = Math.random() * 1 + 0.8;
+        p.style.cssText = 'position:absolute;width:' + size + 'px;height:' + size + 'px;'
+            + 'background:' + color + ';border-radius:' + (Math.random() > 0.5 ? '50%' : '2px') + ';'
+            + 'left:' + x + '%;top:-10px;opacity:1;'
+            + 'animation:confettiFall ' + duration + 's ' + delay + 's ease-in forwards;';
+        container.appendChild(p);
+    }
+    setTimeout(function() { container.innerHTML = ''; }, 2000);
+}
+
 var DS=["Mo","Tu","We","Th","Fr","Sa","Su"];
 var DF=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 var PAGES=["home","training","stats"];
@@ -422,9 +472,11 @@ function last7(){
 }
 
 function clProg(){
-  var cl=ld(CK);var tasks=getSportTasks(getCfg().week[DI]);
+  var cl=ld(CK);
+  var vk=getViewDateKey();var vdi=getViewDayIndex();
+  var tasks=getSportTasks(getCfg().week[vdi]);
   if(!tasks.length) return{done:0,total:0,pct:0};
-  var done=tasks.filter(function(t){return !!cl[TK+"_"+t.id];}).length;
+  var done=tasks.filter(function(t){return !!cl[vk+"_"+t.id];}).length;
   return{done:done,total:tasks.length,pct:Math.round(done/tasks.length*100)};
 }
 
@@ -488,46 +540,99 @@ function renderHome(){
   var sport=getTodaySport();
   var cl=ld(CK);var cfg=getCfg();
 
-  // Week strip
+  // Week label
+  var wlabel = weekOffset===0?"This week":weekOffset===-1?"Last week":weekOffset===1?"Next week":(weekOffset<0?Math.abs(weekOffset)+" weeks ago":weekOffset+" weeks ahead");
+  var wlabelEl = document.getElementById("h-week-label");
+  if(wlabelEl){
+    wlabelEl.textContent = wlabel;
+    wlabelEl.style.color = weekOffset===0?"var(--t3)":"var(--g)";
+  }
+
+  // Today button
+  var todayBtnEl = document.getElementById("h-today-btn");
+  if(todayBtnEl) todayBtnEl.style.display = weekOffset!==0||selectedDay!==null?"inline-flex":"none";
+
+  // Week strip - swipeable, 7 days fill full width
   var wcal=document.getElementById("h-wcal");wcal.innerHTML="";
   for(var i=0;i<7;i++){
-    var d=new Date();d.setDate(d.getDate()+(i-DI));
-    var k=d.toISOString().slice(0,10);var isT=i===DI;
+    var d=new Date();d.setDate(d.getDate()+(i-DI)+(weekOffset*7));
+    var k=d.toISOString().slice(0,10);
+    var isT=k===TK;
+    var isSel=k===(selectedDay||TK);
     var sp=getSport(cfg.week[i]);
-    var tasks=cfg.tasks[cfg.week[i]]||[];
-    var dn=tasks.filter(function(t){return !!cl[k+"_"+t.id];}).length;
-    var full=tasks.length>0&&dn===tasks.length;
+    var tasks2=cfg.tasks[cfg.week[i]]||[];
+    var dn=tasks2.filter(function(t){return !!cl[k+"_"+t.id];}).length;
+    var full=tasks2.length>0&&dn===tasks2.length;
     var div=document.createElement("div");
-    div.className="wday"+(isT?" wday-today":"");
+    div.className="wday"+(isT?" wday-today":"")+(isSel&&!isT?" wday-sel":"");
     if(isT){div.style.background=sp.color;div.style.borderColor=sp.color;}
+    else if(isSel){div.style.borderColor=sp.color;div.style.background=sp.color+"22";}
+    var dayK=k;
+    div.onclick=(function(dk2){return function(){
+      selectedDay=dk2;
+      haptic('light');
+      renderHome();
+    };})(dayK);
+    div.style.cursor="pointer";
     div.innerHTML='<div class="wday-lbl" style="color:'+(isT?"#0d0d0d":"")+'">'+DS[i]+'</div>'
-      +'<div class="wday-num" style="color:'+(isT?"#0d0d0d":full?sp.color:"")+'">'+d.getDate()+'</div>'
+      +'<div class="wday-num" style="color:'+(isT?"#0d0d0d":full?sp.color:isSel?sp.color:"")+'">'+d.getDate()+'</div>'
       +'<div style="width:5px;height:5px;border-radius:50%;background:'+(isT?"rgba(0,0,0,0.25)":full?sp.color:"#2a2a2a")+'"></div>';
     wcal.appendChild(div);
   }
 
+  // Use selected day's sport
+  var viewKey=getViewDateKey();
+  var viewDI=getViewDayIndex();
+  var viewSport=getSport(cfg.week[viewDI]);
+  var isViewingToday=(viewKey===TK);
+
   // Hero
   var hero=document.getElementById("h-hero");
-  hero.style.borderColor=sport.color+"44";
-  hero.style.background="linear-gradient(135deg,"+sport.color+"18,"+sport.color+"06)";
-  document.getElementById("h-focus").textContent=sport.name;
-  document.getElementById("h-focus").style.color=sport.color;
+  hero.style.borderColor=viewSport.color+"44";
+  hero.style.background="linear-gradient(135deg,"+viewSport.color+"18,"+viewSport.color+"06)";
+  document.getElementById("h-focus").textContent=viewSport.name;
+  document.getElementById("h-focus").style.color=viewSport.color;
+  document.getElementById("h-detail").textContent=isViewingToday?"Today":"Viewing: "+new Date(viewKey+"T12:00:00").toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"short"});
 
   // Metrics
   var prog=clProg();var str=calcStreak();
   document.getElementById("h-prog-lbl").textContent=prog.done+"/"+prog.total+" done";
+  // Fire SVG icon in app style (minimal, single color)
+  var fireSvg='<svg width="18" height="20" viewBox="0 0 18 20" fill="none">'
+    +'<path d="M9 1C9 1 5 5 5 9C5 11.2 6.8 13 9 13C11.2 13 13 11.2 13 9C13 7.5 12.2 6.2 11 5.4'
+    +'C11.5 7 10.8 8 10 8C8.9 8 8 7.1 8 6C8 4.2 9 1 9 1Z" fill="#ff9800"/>'
+    +'<path d="M9 13C6.8 13 5 14.8 5 17C5 18.1 5.9 19 7 19H11C12.1 19 13 18.1 13 17C13 14.8 11.2 13 9 13Z" fill="#ff9800" opacity="0.6"/>'
+    +'</svg>';
+
   document.getElementById("h-metrics").innerHTML=
-    '<div class="mcol"><div class="slbl" style="margin-bottom:8px;align-self:flex-start;">STREAK</div>'
-    +'<div class="ring-wrap">'+ring(88,Math.min(str/7*100,100),"#ff9800",7)
-    +'<div class="ring-lbl"><div style="font-size:22px;font-weight:900;line-height:1;">'+str+'</div>'
-    +'<div style="font-size:10px;color:var(--t3);font-weight:600;">days</div></div></div></div>'
-    +'<div class="mcol"><div class="slbl" style="margin-bottom:8px;align-self:flex-start;">TODAY</div>'
-    +'<div class="ring-wrap">'+ring(88,prog.pct,sport.color,7)
-    +'<div class="ring-lbl"><div style="font-size:22px;font-weight:900;line-height:1;color:'+sport.color+';">'+prog.pct+'%</div>'
-    +'<div style="font-size:10px;color:var(--t3);font-weight:600;">'+prog.done+'/'+prog.total+'</div></div></div></div>';
+    // Streak - compact card
+    '<div style="background:var(--card);border-radius:var(--r);border:1px solid var(--bdr);padding:14px 16px;display:flex;align-items:center;gap:12px;">'
+    +fireSvg
+    +'<div><div style="font-size:28px;font-weight:900;line-height:1;color:#ff9800;">'+str+'</div>'
+    +'<div style="font-size:10px;color:var(--t3);font-weight:700;margin-top:2px;letter-spacing:0.06em;">DAY STREAK</div></div>'
+    +'<div style="margin-left:auto;display:flex;gap:4px;">'
+    +Array.from({length:7}).map(function(_,i){
+      var dd=new Date();dd.setDate(dd.getDate()-(6-i));
+      var kk=dd.toISOString().slice(0,10);
+      var cl2=ld(CK);
+      var tasks3=getSportTasks(getCfg().week[(dd.getDay()+6)%7]);
+      var dn2=tasks3.length>0?tasks3.filter(function(t){return !!cl2[kk+"_"+t.id];}).length:0;
+      var full2=tasks3.length>0&&dn2===tasks3.length;
+      return '<div style="width:8px;height:8px;border-radius:50%;background:'+(full2?"#ff9800":"#2a2a2a")+'"></div>';
+    }).join("")
+    +'</div></div>'
+    // Progress - large, prominent
+    +'<div style="background:var(--card);border-radius:var(--r);border:1px solid var(--bdr);padding:18px;display:flex;align-items:center;gap:16px;">'
+    +'<div class="ring-wrap">'+ring(80,prog.pct,viewSport.color,8)
+    +'<div class="ring-lbl"><div style="font-size:20px;font-weight:900;color:'+viewSport.color+';">'+prog.pct+'%</div></div></div>'
+    +'<div><div style="font-size:13px;color:var(--t2);font-weight:600;">'+viewSport.name+'</div>'
+    +'<div style="font-size:28px;font-weight:900;line-height:1.1;margin-top:2px;">'+prog.done+'<span style="font-size:16px;color:var(--t3);font-weight:600;">/'+prog.total+'</span></div>'
+    +'<div style="font-size:10px;color:var(--t3);font-weight:700;letter-spacing:0.06em;margin-top:3px;">TASKS DONE</div>'
+    +(weekOffset!==0||selectedDay!==null?'<div style="font-size:10px;color:var(--t2);margin-top:4px;font-weight:600;">'+new Date((selectedDay||TK)+"T12:00:00").toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})+'</div>':"")
+    +'</div></div>';
 
   // Checklist
-  buildChecklist(TK,sport,document.getElementById("h-cl"),true);
+  buildChecklist(viewKey,viewSport,document.getElementById("h-cl"),true);
 }
 
 function buildChecklist(dk,sport,container,interactive){
@@ -568,7 +673,25 @@ function buildChecklist(dk,sport,container,interactive){
 }
 
 function toggleCL(dk,id){
-  var cl=ld(CK);cl[dk+"_"+id]=!cl[dk+"_"+id];sv(CK,cl);
+  var cl=ld(CK);
+  var wasUnchecked = !cl[dk+"_"+id];
+  cl[dk+"_"+id]=!cl[dk+"_"+id];sv(CK,cl);
+  if(wasUnchecked) haptic('light');
+  // Animate the clicked box
+  var boxes = document.querySelectorAll('.cl-box');
+  boxes.forEach(function(box) {
+    if(box.parentElement && box.parentElement.getAttribute('onclick') && box.parentElement.getAttribute('onclick').indexOf(id) > -1) {
+      if(wasUnchecked) { box.style.transform='scale(1.3)'; setTimeout(function(){box.style.transform='scale(1)';}, 150); }
+    }
+  });
+  // Check if all done
+  var sport = getSport(getCfg().week[getViewDayIndex()]);
+  var tasks = getSportTasks(sport.id);
+  var done = tasks.filter(function(t){return !!cl[dk+"_"+t.id];}).length;
+  if(wasUnchecked && done === tasks.length && tasks.length > 0) {
+    haptic('success');
+    setTimeout(confetti, 100);
+  }
   renderHome();
   if(currentPage==="training") renderTraining();
 }
@@ -980,6 +1103,78 @@ function deleteTask(sportId,ti){
 // ── INIT ──────────────────────────────────────────────────────────────────────
 setNavColors("home");
 renderHome();
+
+
+// goToToday helper
+function goToToday(){
+  weekOffset=0; selectedDay=null; haptic('light'); renderHome();
+}
+
+// ── WEEK STRIP SWIPE ─────────────────────────────────────────────────────────
+(function(){
+  var el=document.getElementById('h-wcal');
+  if(!el) return;
+  var sx=0,sy=0,st=0,dragging=false;
+  document.getElementById('page-home').addEventListener('touchstart',function(e){
+    // Only if touch starts on week strip area (top part of page)
+    if(e.target.closest('.wcal')||e.target.closest('#h-wcal')){
+      sx=e.touches[0].clientX; sy=e.touches[0].clientY; st=Date.now(); dragging=true;
+    }
+  },{passive:true});
+  document.getElementById('page-home').addEventListener('touchend',function(e){
+    if(!dragging) return; dragging=false;
+    var dx=e.changedTouches[0].clientX-sx;
+    var dy=e.changedTouches[0].clientY-sy;
+    var dt=Date.now()-st;
+    if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.5&&dt<400){
+      if(dx<0) weekOffset++;
+      else weekOffset--;
+      haptic('light'); renderHome();
+    }
+  },{passive:true});
+})();
+
+// ── PAGE SWIPE ────────────────────────────────────────────────────────────────
+(function(){
+  var sx=0,sy=0,st=0;
+  document.addEventListener('touchstart',function(e){
+    if(e.target.closest('.modal[style*="flex"]')) return;
+    if(e.target.closest('.wcal')||e.target.closest('#h-wcal')) return;
+    sx=e.touches[0].clientX; sy=e.touches[0].clientY; st=Date.now();
+  },{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(document.querySelector('.modal[style*="flex"]')) return;
+    if(e.target.closest('.wcal')||e.target.closest('#h-wcal')) return;
+    var dx=e.changedTouches[0].clientX-sx;
+    var dy=e.changedTouches[0].clientY-sy;
+    var dt=Date.now()-st;
+    if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*2&&dt<400){
+      var idx=PAGES.indexOf(currentPage);
+      if(dx<0&&idx<PAGES.length-1) showPage(PAGES[idx+1],'left');
+      else if(dx>0&&idx>0) showPage(PAGES[idx-1],'right');
+    }
+  },{passive:true});
+})();
+
+// Override showPage with slide direction
+var _sp=showPage;
+showPage=function(id,dir){
+  if(id===currentPage) return;
+  var pi=PAGES.indexOf(currentPage), ni=PAGES.indexOf(id);
+  currentPage=id;
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active','page-slide-left','page-slide-right');});
+  document.querySelectorAll('.ni').forEach(function(b){b.classList.remove('active');});
+  var pg=document.getElementById('page-'+id);
+  pg.classList.add('active');
+  var sd=dir||(ni>pi?'left':'right');
+  pg.classList.add(sd==='left'?'page-slide-left':'page-slide-right');
+  for(var i=0;i<PAGES.length;i++){if(PAGES[i]===id) document.querySelectorAll('.ni')[i].classList.add('active');}
+  document.getElementById('content').scrollTop=0;
+  setNavColors(id);
+  haptic('light');
+  if(id==='training') renderTraining();
+  if(id==='stats') renderStats();
+};
 
 </script>
 </body>
