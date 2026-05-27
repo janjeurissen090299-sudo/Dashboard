@@ -16,7 +16,7 @@
 html,body{height:100%;overflow:hidden;background:var(--bg);}
 body{font-family:var(--fn);color:var(--t);display:flex;flex-direction:column;max-width:430px;margin:0 auto;}
 button,input,textarea,select{font-family:var(--fn);}
-#content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--nb)+16px);}
+#content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--nb) + env(safe-area-inset-bottom) + 32px);}
 #content::-webkit-scrollbar{display:none;}
 #bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:var(--nb);background:rgba(18,18,18,0.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--bdr);display:flex;align-items:center;z-index:100;padding:0 8px max(6px,env(safe-area-inset-bottom)) 8px;}
 .ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:none;cursor:pointer;padding:6px 0;border-radius:12px;transition:all 0.2s;}
@@ -109,7 +109,7 @@ button,input,textarea,select{font-family:var(--fn);}
       </div>
     </div>
   </div>
-  <div class="px fx" style="padding-bottom:8px;">
+  <div class="px fx" style="padding-bottom:24px;">
     <div>
       <div class="row between" style="margin-bottom:8px;">
         <div class="slbl">THIS WEEK</div>
@@ -141,7 +141,7 @@ button,input,textarea,select{font-family:var(--fn);}
     <div style="font-size:24px;font-weight:900;letter-spacing:-0.02em;">Training</div>
     <div style="font-size:13px;color:var(--t2);margin-top:3px;">Day overview + Stretch</div>
   </div>
-  <div class="px fx" style="padding-bottom:8px;">
+  <div class="px fx" style="padding-bottom:24px;">
     <div style="display:flex;gap:8px;" id="tr-tabs"></div>
     <div id="tr-day">
       <div style="font-size:16px;font-weight:900;margin-bottom:12px;" id="tr-day-title"></div>
@@ -162,7 +162,7 @@ button,input,textarea,select{font-family:var(--fn);}
     <div style="font-size:24px;font-weight:900;letter-spacing:-0.02em;">Stats</div>
     <div style="font-size:13px;color:var(--t2);margin-top:3px;">Track your progress</div>
   </div>
-  <div class="px fx" style="padding-bottom:8px;">
+  <div class="px fx" style="padding-bottom:24px;">
     <div><div class="slbl" style="margin-bottom:10px;">DAILY LOG</div>
       <div class="card cp fx" style="gap:13px;">
         <div><div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:7px;">Energy</div><div class="rat" id="se-rat"></div></div>
@@ -268,10 +268,10 @@ button,input,textarea,select{font-family:var(--fn);}
 </div>
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-// Replace these with your Supabase credentials after creating a project
-var SUPABASE_URL = "";
-var SUPABASE_KEY = "";
-var SUPABASE_USER = "jan"; // unique user id, change if needed
+// FILL IN YOUR SUPABASE CREDENTIALS HERE (permanent - survives cache clears)
+var SUPABASE_URL = ""; // e.g. "https://abcdef.supabase.co"
+var SUPABASE_KEY = ""; // e.g. "eyJhbGci..."
+var SUPABASE_USER = "jan";
 
 // ── LOCAL STORAGE FALLBACK ────────────────────────────────────────────────────
 var SK="jan_v9", CK="jan_cl_v9", CFG="jan_cfg_v9";
@@ -1278,16 +1278,83 @@ function deleteTask(sportId,ti){
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-// Restore Supabase creds from localStorage
+// Credentials: hardcoded values take priority, then localStorage fallback
 (function(){
-  var url=ld("sb_url");var key=ld("sb_key");
-  if(typeof url==="string"&&url) SUPABASE_URL=url;
-  if(typeof key==="string"&&key) SUPABASE_KEY=key;
+  if(!SUPABASE_URL){ var url=ld("sb_url"); if(typeof url==="string"&&url) SUPABASE_URL=url; }
+  if(!SUPABASE_KEY){ var key=ld("sb_key"); if(typeof key==="string"&&key) SUPABASE_KEY=key; }
+  // Always persist current creds to localStorage as backup
+  if(SUPABASE_URL) sv("sb_url", SUPABASE_URL);
+  if(SUPABASE_KEY) sv("sb_key", SUPABASE_KEY);
 })();
 
 setNavColors("home");
 renderHome();
 initSupabase();
+
+// ── WEEK STRIP SWIPE WITH BAND ANIMATION ─────────────────────────────────────
+(function(){
+  var wcalEl = null;
+  var sx=0, sy=0, st=0, touching=false;
+
+  function getWcal(){ return document.getElementById("h-wcal"); }
+
+  document.addEventListener("touchstart", function(e){
+    var t = e.target;
+    // Only activate if touching the week strip
+    if(!t.closest("#h-wcal") && !t.closest(".wday")) return;
+    sx = e.touches[0].clientX;
+    sy = e.touches[0].clientY;
+    st = Date.now();
+    touching = true;
+    e.stopPropagation();
+  }, {passive:true, capture:true});
+
+  document.addEventListener("touchend", function(e){
+    if(!touching) return;
+    touching = false;
+    var dx = e.changedTouches[0].clientX - sx;
+    var dy = e.changedTouches[0].clientY - sy;
+    var dt = Date.now() - st;
+    if(Math.abs(dx) > 30 && Math.abs(dx) > Math.abs(dy) * 1.2 && dt < 600){
+      var dir = dx < 0 ? "left" : "right";
+      if(dx < 0) weekOffset++;
+      else weekOffset--;
+      haptic("light");
+      renderHome();
+      // Apply slide animation to wcal
+      var wc = getWcal();
+      if(wc){
+        wc.classList.remove("wcal-slide-left","wcal-slide-right");
+        void wc.offsetWidth; // force reflow
+        wc.classList.add(dir === "left" ? "wcal-slide-left" : "wcal-slide-right");
+      }
+    }
+  }, {passive:true, capture:true});
+})();
+
+// ── PAGE SWIPE ────────────────────────────────────────────────────────────────
+(function(){
+  var sx=0, sy=0, st=0;
+  document.addEventListener("touchstart", function(e){
+    if(document.querySelector(".modal[style*='flex']")) return;
+    if(e.target.closest("#h-wcal") || e.target.closest(".wday")) return;
+    sx = e.touches[0].clientX;
+    sy = e.touches[0].clientY;
+    st = Date.now();
+  }, {passive:true});
+  document.addEventListener("touchend", function(e){
+    if(document.querySelector(".modal[style*='flex']")) return;
+    if(e.target.closest("#h-wcal") || e.target.closest(".wday")) return;
+    var dx = e.changedTouches[0].clientX - sx;
+    var dy = e.changedTouches[0].clientY - sy;
+    var dt = Date.now() - st;
+    if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 2 && dt < 400){
+      var idx = PAGES.indexOf(currentPage);
+      if(dx < 0 && idx < PAGES.length-1) showPage(PAGES[idx+1], "left");
+      else if(dx > 0 && idx > 0) showPage(PAGES[idx-1], "right");
+    }
+  }, {passive:true});
+})();
 
 </script>
 </body>
